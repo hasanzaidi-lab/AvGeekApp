@@ -13,17 +13,18 @@ struct FlightListView: View {
 
     var body: some View {
         List(flights) { flight in
-            VStack(alignment: .leading, spacing: 4) {
-                Text("\(flight.number) – \(flight.airline.name ?? "Unknown Airline")")
-                    .font(.headline)
+            NavigationLink(destination: AircraftDetailView(registration: flight.aircraft?.reg ?? "")) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("\(flight.number) – \(flight.airline.name ?? "Unknown Airline")")
+                        .font(.headline)
 
-                if let arrival = flight.arrival.airport?.name {
-                    Text("To: \(arrival)")
-                }
+                    if let arrival = flight.arrival.airport?.name {
+                        Text("To: \(arrival)")
+                    }
 
-                if let status = flight.status as String? {
-                    Text("Status: \(status)")
+                    Text("Status: \(flight.status)")
                         .foregroundColor(.gray)
+
                 }
             }
         }
