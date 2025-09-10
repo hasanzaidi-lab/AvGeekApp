@@ -45,7 +45,6 @@ struct AircraftDetailView: View {
     }
 }
 
-
 #Preview {
     NavigationStack {
         AircraftDetailView(registration: "N664NK")
