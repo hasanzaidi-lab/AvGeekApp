@@ -6,7 +6,9 @@
 //
 
 import Foundation
+import AvAppNetworking
 
+@MainActor
 class AircraftDetailViewModel: ObservableObject {
     @Published var aircraft: AircraftDetail?
     @Published var isLoading = false
@@ -16,15 +18,14 @@ class AircraftDetailViewModel: ObservableObject {
         isLoading = true
         error = nil
 
-        AircraftService.shared.fetchAircraftDetail(registration: registration) { result in
-            DispatchQueue.main.async {
+        Task {
+            do {
+                let detail = try await AircraftService.shared.fetchAircraftDetail(registration: registration)
+                self.aircraft = detail
                 self.isLoading = false
-                switch result {
-                case .success(let detail):
-                    self.aircraft = detail
-                case .failure(let err):
-                    self.error = err.localizedDescription
-                }
+            } catch {
+                self.error = error.localizedDescription
+                self.isLoading = false
             }
         }
     }
