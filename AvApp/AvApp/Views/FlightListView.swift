@@ -11,7 +11,7 @@ import AvAppNetworking
 struct FlightListView: View {
     let flights: [FlightData]
     let title: String
-
+    
     var body: some View {
         List(flights) { flight in
             NavigationLink(destination: AircraftDetailView(registration: flight.aircraft?.reg ?? "")) {
