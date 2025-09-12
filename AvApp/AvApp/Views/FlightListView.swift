@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AvAppNetworking
 
 struct FlightListView: View {
     let flights: [FlightData]
@@ -33,33 +34,7 @@ struct FlightListView: View {
 }
 
 #Preview {
-    let sampleFlight = FlightData(
-        number: "AA 100",
-        status: "Expected",
-        codeshareStatus: "IsOperator",
-        isCargo: false,
-        callSign: "AAL100",
-        departure: FlightSegment(
-            scheduledTime: FlightTime(utc: "2025-07-31 14:00Z", local: "2025-07-31 10:00-04:00"),
-            revisedTime: nil,
-            terminal: "B",
-            gate: "10",
-            runway: "5R",
-            airport: AirportInfo(iata: "MCO", icao: "KMCO", name: "Orlando", timeZone: "America/New_York")
-        ),
-        arrival: FlightSegment(
-            scheduledTime: FlightTime(utc: "2025-07-31 17:00Z", local: "2025-07-31 13:00-04:00"),
-            revisedTime: nil,
-            terminal: "3",
-            gate: nil,
-            runway: nil,
-            airport: AirportInfo(iata: "JFK", icao: "KJFK", name: "New York JFK", timeZone: "America/New_York")
-        ),
-        airline: Airline(name: "American Airlines", iata: "AA", icao: "AAL"),
-        aircraft: Aircraft(model: "Airbus A321", reg: "N123AA", modeS: "A1B2C3")
-    )
-
-    return NavigationStack {
-        FlightListView(flights: [sampleFlight], title: "Departures from MCO")
+    NavigationStack {
+        FlightListView(flights: [.mock], title: "Departures from MCO")
     }
 }
