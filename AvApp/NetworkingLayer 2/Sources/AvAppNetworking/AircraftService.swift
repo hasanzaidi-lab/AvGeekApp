@@ -7,6 +7,7 @@
 
 import Foundation
 
+// getting details about the selected aircrafts
 public final class AircraftService {
     private let client: NetworkClient
     private let baseURL = "https://aerodatabox.p.rapidapi.com/aircrafts/reg/"
@@ -15,7 +16,7 @@ public final class AircraftService {
     nonisolated(unsafe) public static let shared = AircraftService(
         client: URLSessionNetworkClient(), apiKey: "31bdfc9f18msh533e951dc1c6231p15dca6jsn722cdc0000a9"
     )
-   
+    
     public init(client: NetworkClient, apiKey: String, host: String = "aerodatabox.p.rapidapi.com") {
         self.client = client
         self.headers = [
@@ -26,7 +27,7 @@ public final class AircraftService {
     
     public func fetchAircraftDetail(registration: String) async throws -> AircraftDetail {
         guard let url = URL(string: baseURL + registration) else {
-            throw NetworkError.invalidURL
+            throw NetworkError.invalidURL(baseURL + registration)
         }
         
         var request = URLRequest(url: url)

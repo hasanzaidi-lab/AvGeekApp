@@ -20,6 +20,7 @@ class AircraftDetailViewModel: ObservableObject {
 
         Task {
             do {
+                // Issue begins here
                 let detail = try await AircraftService.shared.fetchAircraftDetail(registration: registration)
                 self.aircraft = detail
                 self.isLoading = false

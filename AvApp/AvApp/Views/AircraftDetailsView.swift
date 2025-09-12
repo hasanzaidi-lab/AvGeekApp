@@ -34,7 +34,7 @@ struct AircraftDetailView: View {
                     }
                 }
             } else if let error = viewModel.error {
-                Text("Error: \(error)")
+                Text("Error:::: \(error)")
                     .foregroundColor(.red)
             }
         }
