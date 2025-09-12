@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		00BB15D02E7322C20058B20A /* AvAppNetworking in Frameworks */ = {isa = PBXBuildFile; productRef = 00BB15CF2E7322C20058B20A /* AvAppNetworking */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		001E445D2E3BBF8600ABD394 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +31,7 @@
 		001E444F2E3BBF8400ABD394 /* AvApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AvApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		001E445C2E3BBF8600ABD394 /* AvAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AvAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		001E44662E3BBF8600ABD394 /* AvAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AvAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		00BB15CD2E731D950058B20A /* NetworkingLayer 2 */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "NetworkingLayer 2"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -52,6 +57,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				00BB15D02E7322C20058B20A /* AvAppNetworking in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,9 +81,11 @@
 		001E44462E3BBF8400ABD394 = {
 			isa = PBXGroup;
 			children = (
+				00BB15CD2E731D950058B20A /* NetworkingLayer 2 */,
 				001E44512E3BBF8400ABD394 /* AvApp */,
 				001E445F2E3BBF8600ABD394 /* AvAppTests */,
 				001E44692E3BBF8600ABD394 /* AvAppUITests */,
+				00BB15CE2E7322C20058B20A /* Frameworks */,
 				001E44502E3BBF8400ABD394 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,6 +98,13 @@
 				001E44662E3BBF8600ABD394 /* AvAppUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		00BB15CE2E7322C20058B20A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -112,6 +127,7 @@
 			);
 			name = AvApp;
 			packageProductDependencies = (
+				00BB15CF2E7322C20058B20A /* AvAppNetworking */,
 			);
 			productName = AvApp;
 			productReference = 001E444F2E3BBF8400ABD394 /* AvApp.app */;
@@ -550,6 +566,13 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		00BB15CF2E7322C20058B20A /* AvAppNetworking */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AvAppNetworking;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 001E44472E3BBF8400ABD394 /* Project object */;
 }
