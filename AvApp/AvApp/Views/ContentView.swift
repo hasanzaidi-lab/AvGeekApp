@@ -9,43 +9,54 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var viewModel = FlightViewModel()
-    @State private var airportCode: String = "MCO"
+    @State private var airportCode = "MCO"
     @State private var selectedTab = 0
 
     var body: some View {
-        VStack {
-            // Airport IATA Input
-            HStack {
-                TextField("Enter IATA code (e.g. MCO)", text: $airportCode)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .autocapitalization(.allCharacters)
-                    .disableAutocorrection(true)
-                Button("Search") {
-                    Task {
-                        await viewModel.fetchFlights(for: airportCode)
+        TabView(selection: $selectedTab) {
+
+            // Departures tab
+            NavigationStack {
+                FlightListView(flights: viewModel.departures,
+                               title: "Departures from \(airportCode)")
+                    .navigationTitle("Flights")
+                    .searchable(text: $airportCode,
+                                placement: .navigationBarDrawer(displayMode: .automatic),
+                                prompt: "IATA code (e.g. MCO)")
+                    .textInputAutocapitalization(.characters)
+                    .autocorrectionDisabled(true)
+                    .onSubmit(of: .search) {
+                        Task { await viewModel.fetchFlights(for: airportCode.trimmingCharacters(in: .whitespacesAndNewlines)) }
                     }
-                }
+                    .searchSuggestions {
+                        ForEach(["JFK","LAX","SFO","ORD","DFW","ATL","MCO"], id: \.self) { code in
+                            Button(code) {
+                                airportCode = code
+                                Task { await viewModel.fetchFlights(for: code) }
+                            }
+                            .searchCompletion(code)
+                        }
+                    }
             }
-            .padding()
+            .tabItem { Label("Departures", systemImage: "airplane.departure") }
+            .tag(0)
 
-            // Tabs for Departures / Arrivals
-            TabView(selection: $selectedTab) {
-                NavigationStack {
-                    FlightListView(flights: viewModel.departures, title: "Departures from \(airportCode)")
-                }
-                .tabItem {
-                    Label("Departures", systemImage: "airplane.departure")
-                }
-                .tag(0)
-
-                NavigationStack {
-                    FlightListView(flights: viewModel.arrivals, title: "Arrivals to \(airportCode)")
-                }
-                .tabItem {
-                    Label("Arrivals", systemImage: "airplane.arrival")
-                }
-                .tag(1)
+            // Arrivals tab
+            NavigationStack {
+                FlightListView(flights: viewModel.arrivals,
+                               title: "Arrivals to \(airportCode)")
+                    .navigationTitle("Flights")
+                    .searchable(text: $airportCode,
+                                placement: .navigationBarDrawer(displayMode: .automatic),
+                                prompt: "IATA code (e.g. MCO)")
+                    .textInputAutocapitalization(.characters)
+                    .autocorrectionDisabled(true)
+                    .onSubmit(of: .search) {
+                        Task { await viewModel.fetchFlights(for: airportCode.trimmingCharacters(in: .whitespacesAndNewlines)) }
+                    }
             }
+            .tabItem { Label("Arrivals", systemImage: "airplane.arrival") }
+            .tag(1)
         }
         .task {
             await viewModel.fetchFlights(for: airportCode)
@@ -53,6 +64,4 @@ struct ContentView: View {
     }
 }
 
-#Preview {
-    ContentView()
-}
+#Preview { ContentView() }
