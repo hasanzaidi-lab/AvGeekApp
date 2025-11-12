@@ -31,7 +31,7 @@
 		001E444F2E3BBF8400ABD394 /* AvApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AvApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		001E445C2E3BBF8600ABD394 /* AvAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AvAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		001E44662E3BBF8600ABD394 /* AvAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AvAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		00BB15CD2E731D950058B20A /* NetworkingLayer 2 */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "NetworkingLayer 2"; sourceTree = "<group>"; };
+		00BB15CD2E731D950058B20A /* AvAppNetworking Package */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Packages/AvAppNetworking; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -81,7 +81,7 @@
 		001E44462E3BBF8400ABD394 = {
 			isa = PBXGroup;
 			children = (
-				00BB15CD2E731D950058B20A /* NetworkingLayer 2 */,
+				00BB15CD2E731D950058B20A /* AvAppNetworking Package */,
 				001E44512E3BBF8400ABD394 /* AvApp */,
 				001E445F2E3BBF8600ABD394 /* AvAppTests */,
 				001E44692E3BBF8600ABD394 /* AvAppUITests */,
