@@ -33,9 +33,6 @@ public final class URLSessionNetworkClient: NetworkClient {
             do {
                 return try JSONDecoder().decode(T.self, from: data)
             } catch let decodingError as DecodingError {
-                if let jsonString = String(data: data, encoding: .utf8) {
-                    print("🔍 Raw JSON:\n\(jsonString)")
-                }
                 throw NetworkError.decodingError(decodingError)
             }
         } catch let urlError as URLError {

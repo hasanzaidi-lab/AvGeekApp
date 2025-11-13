@@ -57,6 +57,13 @@ struct AircraftDetailView: View {
                         detailRow("Delivery", value: formatted(dateString: aircraft.deliveryDate))
                         detailRow("Registered", value: formatted(dateString: aircraft.registrationDate))
                     }
+                    
+                    if let icaoHex = aircraft.icaoHex, !icaoHex.isEmpty {
+                        Section("Live Track") {
+                            MapKitView(icao24: icaoHex)
+                                .listRowInsets(EdgeInsets())
+                        }
+                    }
                 }
                 .listStyle(.insetGrouped)
             } else if let error = viewModel.error {
