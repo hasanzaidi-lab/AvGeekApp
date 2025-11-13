@@ -29,9 +29,12 @@ extension FlightSegment {
         FlightSegment(
             scheduledTime: FlightTime(utc: "2025-07-31 14:00Z", local: "2025-07-31 10:00-04:00"),
             revisedTime: nil,
+            runwayTime: nil,
             terminal: "B",
             gate: "10",
             runway: "5R",
+            baggageBelt: nil,
+            quality: ["Basic", "Live"],
             airport: AirportInfo(iata: "MCO", icao: "KMCO", name: "Orlando", timeZone: "America/New_York")
         )
     }
