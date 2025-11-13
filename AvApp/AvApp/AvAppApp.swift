@@ -11,7 +11,7 @@ import SwiftUI
 struct AvAppApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            FlightBoardView()
         }
     }
 }

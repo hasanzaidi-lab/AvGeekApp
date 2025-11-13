@@ -14,7 +14,8 @@ AvApp is a SwiftUI-based flight tracker that surfaces airport departures/arrival
 AvApp/
 ├── AvApp/                      # App target sources (SwiftUI views, view models, Assets)
 │   └── Features/
-│       ├── MVP/                # Shipping flight list experience
+│       ├── FlightBoard/        # Shipping departures/arrivals MVVM-C feature
+│       ├── AircraftDetail/     # Aircraft detail MVVM-C flow
 │       └── MapKitInteg/        # Experimental map-centric prototype
 ├── AvAppTests/                 # Unit tests for the app target
 ├── AvAppUITests/               # UI / snapshot tests
@@ -32,7 +33,7 @@ AvApp/
 ### Module overview
 | Module | Responsibility | Notes |
 | --- | --- | --- |
-| `AvApp` | User interface, app lifecycle, feature composition | Depends on `AvAppNetworking` for data and exposes feature folders (`Features/MVP`, `Features/MapKitInteg`). |
+| `AvApp` | User interface, app lifecycle, feature composition | Depends on `AvAppNetworking` for data and exposes feature folders (`Features/FlightBoard`, `Features/AircraftDetail`, `Features/MapKitInteg`). |
 | `AvAppNetworking` | Fetches flight/aircraft data from RapidAPI with strong typing and detailed errors. | Distributed as a Swift package inside `Packages/`; shared clients can re-use it. |
 | `AvAppTests` / `AvAppUITests` | Regression and UI coverage. | Adopt the same folder naming as the app target so files are easy to locate. |
 
@@ -40,10 +41,10 @@ AvApp/
 1. **Install tools** – Xcode 16.0+ (Swift 6 toolchain). The package manifest targets iOS 15+, macOS 12+, tvOS 15+, watchOS 8+.
 2. **Open the workspace** – double-click `AvApp/AvApp.xcodeproj`. Xcode detects the local package under `Packages/AvAppNetworking` automatically.
 3. **Add credentials** – replace the placeholder RapidAPI keys inside `Packages/AvAppNetworking/Sources/AvAppNetworking/FlightService.swift` and `AircraftService.swift` with your own. Consider moving them into an `xcconfig` or using secrets in the future.
-4. **Run** – select the `AvApp` scheme and target a simulator or device. The `ContentView` will automatically fetch departures/arrivals for the default airport code (MCO).
+4. **Run** – select the `AvApp` scheme and target a simulator or device. `FlightBoardView` boots through the `FlightBoardCoordinator` and automatically fetches departures/arrivals for the default airport code (MCO).
 
 ## Development tips
-- Use the `FlightViewModel` entry point for UI-driven fetches. It exposes `fetchFlights(for:)` so previews/tests can inject known data.
+- Use `FlightBoardViewModel` (wired through `FlightBoardCoordinator`) for departures/arrivals. Inject mocks into the coordinator when running previews or unit tests.
 - `FlightService` now centralizes both departure and arrival queries. Mock data lives in `FlightMocks.swift` for previews/tests.
 - Extend the directory layout by adding new folders under `Features/<FeatureName>`; share code via `Shared/` or the networking package when possible.
 - For debugging network responses, enable the mock helpers or log raw payloads from the `NetworkClient`.

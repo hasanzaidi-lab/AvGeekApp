@@ -14,20 +14,26 @@ class AircraftDetailViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var error: String?
 
+    private let service: AircraftService
+
+    init(service: AircraftService = .shared) {
+        self.service = service
+    }
+
     func loadAircraftDetail(registration: String) {
+        guard !registration.isEmpty else { return }
         isLoading = true
         error = nil
 
         Task {
             do {
-                // Issue begins here
-                let detail = try await AircraftService.shared.fetchAircraftDetail(registration: registration)
+                let detail = try await service.fetchAircraftDetail(registration: registration)
                 self.aircraft = detail
-                self.isLoading = false
             } catch {
                 self.error = error.localizedDescription
-                self.isLoading = false
             }
+
+            self.isLoading = false
         }
     }
 }

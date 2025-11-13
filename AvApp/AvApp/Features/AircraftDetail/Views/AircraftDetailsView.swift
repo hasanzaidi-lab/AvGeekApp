@@ -10,8 +10,14 @@
 import SwiftUI
 
 struct AircraftDetailView: View {
-    let registration: String
-    @StateObject private var viewModel = AircraftDetailViewModel()
+    @StateObject private var coordinator: AircraftDetailCoordinator
+    @ObservedObject private var viewModel: AircraftDetailViewModel
+
+    init(registration: String) {
+        let coordinator = AircraftDetailCoordinator(registration: registration)
+        _coordinator = StateObject(wrappedValue: coordinator)
+        _viewModel = ObservedObject(wrappedValue: coordinator.viewModel)
+    }
 
     var body: some View {
         Group {
@@ -74,9 +80,7 @@ struct AircraftDetailView: View {
             }
         }
         .navigationTitle("Aircraft Info")
-        .onAppear {
-            viewModel.loadAircraftDetail(registration: registration)
-        }
+        .onAppear(perform: coordinator.onAppear)
     }
 }
 
