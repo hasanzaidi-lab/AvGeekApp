@@ -29,9 +29,12 @@ public struct FlightData: Decodable, Identifiable {
 public struct FlightSegment: Decodable {
     public let scheduledTime: FlightTime?
     public let revisedTime: FlightTime?
+    public let runwayTime: FlightTime?
     public let terminal: String?
     public let gate: String?
     public let runway: String?
+    public let baggageBelt: String?
+    public let quality: [String]?
     public let airport: AirportInfo?
 }
 
