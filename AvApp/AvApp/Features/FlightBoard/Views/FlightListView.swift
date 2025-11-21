@@ -32,14 +32,13 @@ struct FlightListView: View {
                             Text("\(flight.number) – \(flight.airline.name)")
                                 .font(.headline)
 
+                            FlightTimelineView(
+                                departure: timelineInfo(for: flight.departure, label: "Departure"),
+                                arrival: timelineInfo(for: flight.arrival, label: "Arrival")
+                            )
+
                             if let route = routeDescription(for: flight) {
                                 Text(route)
-                            }
-
-                            if let timeline = timelineText(for: flight) {
-                                Text(timeline)
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
                             }
 
                             if let callSign = flight.callSign {
@@ -96,48 +95,144 @@ struct FlightListView: View {
     }
 }
 
-private extension FlightListView {
-    static let iso8601Parser: ISO8601DateFormatter = {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withColonSeparatorInTimeZone]
-        return formatter
-    }()
+private struct FlightTimelineView: View {
+    let departure: SegmentTimelineInfo?
+    let arrival: SegmentTimelineInfo?
 
-    static let displayTimeFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.timeStyle = .short
-        formatter.dateStyle = .none
-        return formatter
-    }()
+    var body: some View {
+        if departure != nil || arrival != nil {
+            HStack(alignment: .top, spacing: 12) {
+                if let departure {
+                    timelineCard(for: departure)
+                }
 
-    func timelineText(for flight: FlightData) -> String? {
-        let normalizedStatus = flight.status.lowercased()
+                if departure != nil && arrival != nil {
+                    Image(systemName: "arrow.forward")
+                        .font(.headline)
+                        .foregroundColor(.secondary)
+                        .padding(.top, 22)
+                }
 
-        if normalizedStatus.contains("arriv") {
-            return formattedTimeline(label: "Arrival", segment: flight.arrival)
-        } else if normalizedStatus.contains("depart") {
-            return formattedTimeline(label: "Departure", segment: flight.departure)
+                if let arrival {
+                    timelineCard(for: arrival)
+                }
+            }
+            .padding(.vertical, 2)
         }
-
-        return nil
     }
 
-    func formattedTimeline(label: String, segment: FlightSegment) -> String? {
-        guard let time = segment.runwayTime ?? segment.revisedTime ?? segment.scheduledTime else { return nil }
-        return "\(label): \(Self.renderedTime(from: time))"
+    private func timelineCard(for info: SegmentTimelineInfo) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(info.label.uppercased())
+                .font(.caption2)
+                .fontWeight(.semibold)
+                .foregroundColor(.secondary)
+
+            Text(info.time)
+                .font(.title3.monospacedDigit())
+                .fontWeight(.semibold)
+
+            if let supplement = info.timeSupplement {
+                Text(supplement)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+
+            if let primary = info.primaryLocation {
+                Text(primary)
+                    .font(.subheadline)
+            }
+
+            if let secondary = info.secondaryLocation {
+                Text(secondary)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+
+            Text(info.status)
+                .font(.caption2)
+                .foregroundColor(.secondary)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(Color(.secondarySystemBackground))
+        )
+    }
+}
+
+private struct SegmentTimelineInfo {
+    let label: String
+    let time: String
+    let timeSupplement: String?
+    let status: String
+    let primaryLocation: String?
+    let secondaryLocation: String?
+}
+
+private extension FlightListView {
+    func timelineInfo(for segment: FlightSegment, label: String) -> SegmentTimelineInfo? {
+        guard let highlightedTime = primaryTime(for: segment) else { return nil }
+        let time = Self.renderedTime(from: highlightedTime.time)
+        let code = segment.airport?.iata ?? segment.airport?.icao
+        let name = segment.airport?.name
+        let primaryLocation = code ?? name
+        let secondaryLocation = code != nil && name != nil ? name : nil
+
+        return SegmentTimelineInfo(
+            label: label,
+            time: time,
+            timeSupplement: timeSupplement(for: segment.airport?.timeZone),
+            status: highlightedTime.status,
+            primaryLocation: primaryLocation,
+            secondaryLocation: secondaryLocation
+        )
+    }
+
+    func primaryTime(for segment: FlightSegment) -> (time: FlightTime, status: String)? {
+        if let runway = segment.runwayTime {
+            return (runway, "Actual runway")
+        } else if let revised = segment.revisedTime {
+            return (revised, "Updated schedule")
+        } else if let scheduled = segment.scheduledTime {
+            return (scheduled, "Scheduled")
+        }
+        return nil
     }
 
     static func renderedTime(from time: FlightTime) -> String {
         let candidates = [time.local, time.utc]
 
         for raw in candidates {
-            let isoReady = raw.contains("T") ? raw : raw.replacingOccurrences(of: " ", with: "T")
-            if let date = iso8601Parser.date(from: isoReady) {
-                return displayTimeFormatter.string(from: date)
+            if let clock = clockComponent(from: raw) {
+                return clock
             }
         }
 
-        return time.local
+        return "--:--"
+    }
+
+    static func clockComponent(from raw: String) -> String? {
+        guard !raw.isEmpty else { return nil }
+        let separators = CharacterSet(charactersIn: "T ")
+        let pieces = raw.components(separatedBy: separators).filter { !$0.isEmpty }
+        guard let candidate = pieces.last else { return nil }
+        let trimmed = candidate
+            .replacingOccurrences(of: "Z", with: "")
+        let timeAndZone = trimmed.split(whereSeparator: { $0 == "+" || $0 == "-" })
+        guard let timePortion = timeAndZone.first else { return nil }
+        let components = timePortion.split(separator: ":")
+        guard components.count >= 2,
+              let hour = Int(components[0]),
+              let minute = Int(components[1].prefix(2)) else { return nil }
+        return String(format: "%02d:%02d", hour, minute)
+    }
+
+    func timeSupplement(for timeZoneIdentifier: String?) -> String? {
+        guard let timeZoneIdentifier,
+              let timeZone = TimeZone(identifier: timeZoneIdentifier) else { return timeZoneIdentifier }
+        return timeZone.abbreviation() ?? timeZone.identifier
     }
 
     func routeDescription(for flight: FlightData) -> String? {
