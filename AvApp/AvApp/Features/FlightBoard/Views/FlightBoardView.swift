@@ -20,41 +20,26 @@ struct FlightBoardView: View {
             )
             .ignoresSafeArea()
 
-            VStack(alignment: .leading, spacing: 16) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Live Flight Board")
-                        .font(.largeTitle.bold())
-                    Text("Enter an airport to see real-time departures and arrivals. Pull to refresh anytime.")
-                        .foregroundStyle(.secondary)
-                        .font(.callout)
+            TabView(selection: $coordinator.selectedTab) {
+                FlightListContainer(
+                    title: "Departures from \(coordinator.airportCode)",
+                    flights: coordinator.departures,
+                    searchText: $coordinator.flightSearchText
+                ) {
+                    headerContent
                 }
-                .padding(.horizontal)
+                .tag(FlightBoardCoordinator.Tab.departures)
+                .tabItem { Label("Departures", systemImage: FlightBoardCoordinator.Tab.departures.systemImage) }
 
-                FlightBoardAirportSearchBar(
-                    code: $coordinator.airportCode,
-                    suggestedCodes: FlightBoardAirportSearchBar.defaultSuggestions,
-                    onSubmit: { await coordinator.fetchFlights(for: $0) },
-                    onRefresh: coordinator.refresh
-                )
-                .padding(.horizontal)
-
-                TabView(selection: $coordinator.selectedTab) {
-                    FlightListContainer(
-                        title: "Departures from \(coordinator.airportCode)",
-                        flights: coordinator.departures,
-                        searchText: $coordinator.flightSearchText
-                    )
-                    .tag(FlightBoardCoordinator.Tab.departures)
-                    .tabItem { Label("Departures", systemImage: FlightBoardCoordinator.Tab.departures.systemImage) }
-
-                    FlightListContainer(
-                        title: "Arrivals to \(coordinator.airportCode)",
-                        flights: coordinator.arrivals,
-                        searchText: $coordinator.flightSearchText
-                    )
-                    .tag(FlightBoardCoordinator.Tab.arrivals)
-                    .tabItem { Label("Arrivals", systemImage: FlightBoardCoordinator.Tab.arrivals.systemImage) }
+                FlightListContainer(
+                    title: "Arrivals to \(coordinator.airportCode)",
+                    flights: coordinator.arrivals,
+                    searchText: $coordinator.flightSearchText
+                ) {
+                    headerContent
                 }
+                .tag(FlightBoardCoordinator.Tab.arrivals)
+                .tabItem { Label("Arrivals", systemImage: FlightBoardCoordinator.Tab.arrivals.systemImage) }
             }
         }
         .task { coordinator.onAppear() }
@@ -84,19 +69,45 @@ struct FlightBoardView: View {
     }
 }
 
-private struct FlightListContainer: View {
+private struct FlightListContainer<Header: View>: View {
     let title: String
     let flights: [FlightData]
     @Binding var searchText: String
+    @ViewBuilder var header: () -> Header
 
     var body: some View {
         NavigationStack {
             FlightListView(
                 flights: flights,
                 title: title,
-                searchText: $searchText
+                searchText: $searchText,
+                header: header
             )
         }
+    }
+}
+
+private extension FlightBoardView {
+    @ViewBuilder
+    var headerContent: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Live Flight Board")
+                    .font(.largeTitle.bold())
+                Text("Enter an airport to see real-time departures and arrivals. Pull to refresh anytime.")
+                    .foregroundStyle(.secondary)
+                    .font(.callout)
+            }
+
+            FlightBoardAirportSearchBar(
+                code: $coordinator.airportCode,
+                suggestedCodes: FlightBoardAirportSearchBar.defaultSuggestions,
+                onSubmit: { await coordinator.fetchFlights(for: $0) },
+                onRefresh: coordinator.refresh
+            )
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
     }
 }
 

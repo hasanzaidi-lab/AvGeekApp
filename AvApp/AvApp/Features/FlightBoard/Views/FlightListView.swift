@@ -5,19 +5,37 @@
 //  Created by Hasan Zaidi on 9/12/25.
 //
 
-import Foundation
 import SwiftUI
 import AvAppNetworking
 
-struct FlightListView: View {
+struct FlightListView<Header: View>: View {
     let flights: [FlightData]
     let title: String
     @Binding var searchText: String
+    private let header: Header
+
+    init(
+        flights: [FlightData],
+        title: String,
+        searchText: Binding<String>,
+        @ViewBuilder header: () -> Header
+    ) {
+        self.flights = flights
+        self.title = title
+        self._searchText = searchText
+        self.header = header()
+    }
     
     var body: some View {
         let trimmedSearch = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
 
         List {
+            Section {
+                header
+            }
+            .listRowInsets(.init())
+            .listRowSeparator(.hidden)
+
             if filteredFlights.isEmpty {
                 VStack(spacing: 8) {
                     Image(systemName: "sparkle.magnifyingglass")
@@ -79,12 +97,19 @@ struct FlightListView: View {
         .background(Color(.systemGroupedBackground))
         .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic), prompt: "Flight # or airline")
         .navigationTitle(title)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
 #Preview {
     NavigationStack {
-        FlightListView(flights: [.mock], title: "Departures from MCO", searchText: .constant(""))
+        FlightListView(
+            flights: [.mock],
+            title: "Departures from MCO",
+            searchText: .constant("")
+        ) {
+            EmptyView()
+        }
     }
 }
 
