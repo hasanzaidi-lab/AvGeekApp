@@ -15,75 +15,68 @@ struct FlightListView: View {
     @Binding var searchText: String
     
     var body: some View {
+        let trimmedSearch = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+
         List {
-            if filteredFlights.isEmpty && !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            if filteredFlights.isEmpty {
                 VStack(spacing: 8) {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.secondary)
-                    Text("No flights match “\(searchText.trimmingCharacters(in: .whitespacesAndNewlines))”.")
-                        .multilineTextAlignment(.center)
-                        .foregroundColor(.secondary)
+                    Image(systemName: "sparkle.magnifyingglass")
+                        .font(.title)
+                        .foregroundStyle(.secondary)
+                    if trimmedSearch.isEmpty {
+                        Text("No flights to show yet.")
+                            .multilineTextAlignment(.center)
+                            .foregroundStyle(.secondary)
+                        Text("Choose an airport and refresh to see live departures and arrivals.")
+                            .font(.footnote)
+                            .foregroundStyle(.tertiary)
+                    } else {
+                        Text("No flights match “\(trimmedSearch)”.")
+                            .multilineTextAlignment(.center)
+                            .foregroundStyle(.secondary)
+                        Text("Try a flight number, airline, or codeshare call sign.")
+                            .font(.footnote)
+                            .foregroundStyle(.tertiary)
+                    }
                 }
                 .frame(maxWidth: .infinity, minHeight: 200)
             } else {
-                ForEach(filteredFlights) { flight in
-                    NavigationLink(destination: AircraftDetailView(registration: flight.aircraft?.reg ?? "")) {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("\(flight.number) – \(flight.airline.name)")
-                                .font(.headline)
-
-                            FlightTimelineView(
+                Section {
+                    ForEach(filteredFlights) { flight in
+                        NavigationLink(destination: AircraftDetailView(registration: flight.aircraft?.reg ?? "")) {
+                            FlightRow(
+                                flight: flight,
                                 departure: timelineInfo(for: flight.departure, label: "Departure"),
-                                arrival: timelineInfo(for: flight.arrival, label: "Arrival")
+                                arrival: timelineInfo(for: flight.arrival, label: "Arrival"),
+                                route: routeDescription(for: flight),
+                                callSign: flight.callSign,
+                                aircraftLine: aircraftSummary(for: flight),
+                                departureDetail: segmentDetails(for: flight.departure, label: "Departure"),
+                                arrivalDetail: segmentDetails(for: flight.arrival, label: "Arrival", includeBaggage: true),
+                                departureQuality: qualityLine(label: "Departure", quality: flight.departure.quality),
+                                arrivalQuality: qualityLine(label: "Arrival", quality: flight.arrival.quality),
+                                statusLine: statusLine(for: flight)
                             )
-
-                            if let route = routeDescription(for: flight) {
-                                Text(route)
-                            }
-
-                            if let callSign = flight.callSign {
-                                Text("Call sign: \(callSign)")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-
-                            if let aircraftLine = aircraftSummary(for: flight) {
-                                Text(aircraftLine)
-                            }
-
-                            if let departureDetail = segmentDetails(for: flight.departure, label: "Departure") {
-                                Text(departureDetail)
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-
-                            if let arrivalDetail = segmentDetails(for: flight.arrival, label: "Arrival", includeBaggage: true) {
-                                Text(arrivalDetail)
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-
-                            if let departureQuality = qualityLine(label: "Departure", quality: flight.departure.quality) {
-                                Text(departureQuality)
-                                    .font(.caption2)
-                                    .foregroundColor(.secondary)
-                            }
-
-                            if let arrivalQuality = qualityLine(label: "Arrival", quality: flight.arrival.quality) {
-                                Text(arrivalQuality)
-                                    .font(.caption2)
-                                    .foregroundColor(.secondary)
-                            }
-
-                            Text(statusLine(for: flight))
-                                .foregroundColor(.gray)
-
                         }
-                        .padding(.vertical, 4)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
                     }
+                } header: {
+                    HStack {
+                        Text("Showing \(filteredFlights.count) flight\(filteredFlights.count == 1 ? "" : "s")")
+                        Spacer()
+                    }
+                    .textCase(.none)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 8)
                 }
             }
         }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .background(Color(.systemGroupedBackground))
         .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic), prompt: "Flight # or airline")
         .navigationTitle(title)
     }
@@ -92,6 +85,154 @@ struct FlightListView: View {
 #Preview {
     NavigationStack {
         FlightListView(flights: [.mock], title: "Departures from MCO", searchText: .constant(""))
+    }
+}
+
+private struct FlightRow: View {
+    let flight: FlightData
+    let departure: SegmentTimelineInfo?
+    let arrival: SegmentTimelineInfo?
+    let route: String?
+    let callSign: String?
+    let aircraftLine: String?
+    let departureDetail: String?
+    let arrivalDetail: String?
+    let departureQuality: String?
+    let arrivalQuality: String?
+    let statusLine: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(flight.number)
+                        .font(.title3.weight(.semibold))
+                    Text(flight.airline.name)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                statusBadge
+            }
+
+            FlightTimelineView(
+                departure: departure,
+                arrival: arrival
+            )
+
+            VStack(alignment: .leading, spacing: 8) {
+                if let route {
+                    Label(route, systemImage: "map")
+                        .font(.callout)
+                }
+
+                HStack(spacing: 8) {
+                    if let aircraftLine {
+                        infoChip(text: aircraftLine, systemImage: "airplane")
+                    }
+                    if let callSign {
+                        infoChip(text: "Call sign \(callSign)", systemImage: "antenna.radiowaves.left.and.right")
+                    }
+                }
+
+                HStack(spacing: 8) {
+                    if let departureDetail {
+                        detailChip(text: departureDetail, systemImage: "airplane.departure")
+                    }
+                    if let arrivalDetail {
+                        detailChip(text: arrivalDetail, systemImage: "airplane.arrival")
+                    }
+                }
+
+                if let qualityText {
+                    Label(qualityText, systemImage: "scope")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Label(statusLine, systemImage: "info.circle")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(.secondarySystemBackground))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(Color.primary.opacity(0.05))
+        )
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+    }
+
+    private var statusBadge: some View {
+        Text(friendlyStatus(flight.status))
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(
+                Capsule()
+                    .fill(statusTint.opacity(0.18))
+            )
+            .foregroundStyle(statusTint)
+            .font(.footnote.weight(.semibold))
+    }
+
+    private var statusTint: Color {
+        let status = flight.status.lowercased()
+        if status.contains("cancel") { return .red }
+        if status.contains("divert") { return .orange }
+        if status.contains("delay") { return .orange }
+        if status.contains("land") { return .green }
+        if status.contains("depart") || status.contains("active") { return .blue }
+        return .blue
+    }
+
+    private var qualityText: String? {
+        switch (departureQuality, arrivalQuality) {
+        case let (departure?, arrival?):
+            return "\(departure); \(arrival)"
+        case let (departure?, nil):
+            return departure
+        case let (nil, arrival?):
+            return arrival
+        default:
+            return nil
+        }
+    }
+
+    private func infoChip(text: String, systemImage: String) -> some View {
+        Label(text, systemImage: systemImage)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(
+                Capsule()
+                    .fill(Color.primary.opacity(0.05))
+            )
+            .font(.footnote)
+    }
+
+    private func detailChip(text: String, systemImage: String) -> some View {
+        Label(text, systemImage: systemImage)
+            .font(.caption)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(
+                Capsule()
+                    .fill(Color.primary.opacity(0.03))
+            )
+            .foregroundStyle(.secondary)
+    }
+
+    private func friendlyStatus(_ raw: String) -> String {
+        raw
+            .replacingOccurrences(of: "_", with: " ")
+            .replacingOccurrences(of: "(?<=[a-z0-9])([A-Z])", with: " $1", options: .regularExpression)
+            .capitalized
     }
 }
 

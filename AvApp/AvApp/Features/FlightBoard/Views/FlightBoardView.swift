@@ -12,30 +12,49 @@ struct FlightBoardView: View {
     @StateObject private var coordinator = FlightBoardCoordinator()
 
     var body: some View {
-        VStack(spacing: 0) {
-            FlightBoardAirportSearchBar(
-                code: $coordinator.airportCode,
-                suggestedCodes: FlightBoardAirportSearchBar.defaultSuggestions,
-                onSubmit: { await coordinator.fetchFlights(for: $0) },
-                onRefresh: coordinator.refresh
+        ZStack {
+            LinearGradient(
+                colors: [Color.blue.opacity(0.12), Color(.systemBackground)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
             )
+            .ignoresSafeArea()
 
-            TabView(selection: $coordinator.selectedTab) {
-                FlightListContainer(
-                    title: "Departures from \(coordinator.airportCode)",
-                    flights: coordinator.departures,
-                    searchText: $coordinator.flightSearchText
-                )
-                .tag(FlightBoardCoordinator.Tab.departures)
-                .tabItem { Label("Departures", systemImage: FlightBoardCoordinator.Tab.departures.systemImage) }
+            VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Live Flight Board")
+                        .font(.largeTitle.bold())
+                    Text("Enter an airport to see real-time departures and arrivals. Pull to refresh anytime.")
+                        .foregroundStyle(.secondary)
+                        .font(.callout)
+                }
+                .padding(.horizontal)
 
-                FlightListContainer(
-                    title: "Arrivals to \(coordinator.airportCode)",
-                    flights: coordinator.arrivals,
-                    searchText: $coordinator.flightSearchText
+                FlightBoardAirportSearchBar(
+                    code: $coordinator.airportCode,
+                    suggestedCodes: FlightBoardAirportSearchBar.defaultSuggestions,
+                    onSubmit: { await coordinator.fetchFlights(for: $0) },
+                    onRefresh: coordinator.refresh
                 )
-                .tag(FlightBoardCoordinator.Tab.arrivals)
-                .tabItem { Label("Arrivals", systemImage: FlightBoardCoordinator.Tab.arrivals.systemImage) }
+                .padding(.horizontal)
+
+                TabView(selection: $coordinator.selectedTab) {
+                    FlightListContainer(
+                        title: "Departures from \(coordinator.airportCode)",
+                        flights: coordinator.departures,
+                        searchText: $coordinator.flightSearchText
+                    )
+                    .tag(FlightBoardCoordinator.Tab.departures)
+                    .tabItem { Label("Departures", systemImage: FlightBoardCoordinator.Tab.departures.systemImage) }
+
+                    FlightListContainer(
+                        title: "Arrivals to \(coordinator.airportCode)",
+                        flights: coordinator.arrivals,
+                        searchText: $coordinator.flightSearchText
+                    )
+                    .tag(FlightBoardCoordinator.Tab.arrivals)
+                    .tabItem { Label("Arrivals", systemImage: FlightBoardCoordinator.Tab.arrivals.systemImage) }
+                }
             }
         }
         .task { coordinator.onAppear() }
