@@ -141,6 +141,13 @@ private struct FlightRow: View {
 
                 statusBadge
             }
+            .accessibilityElement(children: .contain)
+                .accessibilityIdentifier("flight-row")
+                .padding(16)
+                .background(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(Color(.secondarySystemBackground))
+                )
 
             FlightTimelineView(
                 departure: departure,

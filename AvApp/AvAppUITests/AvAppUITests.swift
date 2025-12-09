@@ -38,4 +38,44 @@ final class AvAppUITests: XCTestCase {
             XCUIApplication().launch()
         }
     }
+    
+//    func testScreenshots() {
+//        let app = XCUIApplication()
+//        setupSnapshot(app)
+//        app.launch()
+//        
+//        // Screen 1
+//        snapshot("01-HomeScreen")
+//        
+//        // Example navigation
+//        app.buttons["FlightsTab"].tap()
+//        snapshot("02-FlightsScreen")
+//        
+//        app.buttons["MapTab"].tap()
+//        snapshot("03-MapScreen")
+//    }
+    
+}
+
+extension XCTestCase {
+    /// Minimal setup helper to make screenshot tests consistent.
+    /// Mirrors the typical Fastlane `setupSnapshot` intent without requiring the dependency.
+    func setupSnapshot(_ app: XCUIApplication) {
+        // Add arguments to help keep output consistent and distinguish UI testing runs.
+        app.launchArguments += [
+            "-ui_testing_screenshots"
+        ]
+        // Optionally pin language/locale for consistency (uncomment if needed):
+        // app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+    }
+
+    /// Takes a screenshot and adds it as an attachment that is always kept in test results.
+    /// - Parameter name: The logical name for the screenshot attachment.
+    func snapshot(_ name: String) {
+        let screenshot = XCUIScreen.main.screenshot()
+        let attachment = XCTAttachment(screenshot: screenshot)
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
 }

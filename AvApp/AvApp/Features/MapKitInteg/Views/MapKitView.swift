@@ -42,6 +42,7 @@ public struct MapKitView: View {
                 TrackPolylineMap(coordinates: viewModel.coordinates)
                     .frame(height: 220)
                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .accessibilityIdentifier("track-map")
                     .overlay(alignment: .topLeading) {
                         if let callsign = viewModel.callsign, !callsign.isEmpty {
                             Text(callsign)
