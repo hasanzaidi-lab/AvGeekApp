@@ -7,14 +7,14 @@
 #  "en-US"
 #])
 
-# scheme("AvApp")   # UITest host scheme
+scheme("AvApp")   # UITest host scheme
 
 # output_directory("./screenshots")
 
 # clear_previous_screenshots(true)
 
 # override_status_bar(true)
-# launch_arguments(["-fastlane-screenshots"])
+launch_arguments(["-ui_testing_screenshots"])
 
 devices([
   "iPhone 17 Pro"

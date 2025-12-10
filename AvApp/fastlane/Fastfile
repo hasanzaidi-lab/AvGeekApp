@@ -51,4 +51,17 @@ platform :ios do
       devices: [ENV["SIMULATOR_DEVICE"] || "iPhone 15 Pro"]
     )
   end
+
+  desc "Generate UI screenshots with fastlane snapshot"
+  lane :snapshot do
+    snapshot(
+      project: "AvApp.xcodeproj",
+      scheme: "AvApp",
+      devices: [ENV["SIMULATOR_DEVICE"] || "iPhone 17 Pro"],
+      languages: ["en-US"],
+      clear_previous_screenshots: true,
+      override_status_bar: true,
+      xcargs: "-ui_testing_screenshots"
+    )
+  end
 end

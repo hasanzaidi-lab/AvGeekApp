@@ -63,6 +63,14 @@ Hello world example
 
 Quick smoke tests on a simulator
 
+### ios snapshot
+
+```sh
+[bundle exec] fastlane ios snapshot
+```
+
+Generate UI screenshots with fastlane snapshot
+
 ----
 
 This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.

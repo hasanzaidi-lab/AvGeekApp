@@ -166,7 +166,7 @@ GEM
     json (2.17.1)
     jwt (2.10.2)
       base64
-    logger (1.7.0)
+    logger (1.6.0)
     mini_magick (4.13.2)
     mini_mime (1.1.5)
     multi_json (1.18.0)
@@ -228,6 +228,7 @@ PLATFORMS
 
 DEPENDENCIES
   fastlane
+  logger (~> 1.6.0)
 
 BUNDLED WITH
    2.7.2
