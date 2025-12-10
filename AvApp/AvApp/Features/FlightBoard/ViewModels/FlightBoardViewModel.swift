@@ -19,12 +19,27 @@ final class FlightBoardViewModel: ObservableObject {
 
     init(service: FlightService = .shared) {
         self.service = service
+        #if DEBUG
+        if UITestConfig.isUITesting {
+            departures = UITestConfig.flights
+            arrivals = Array(UITestConfig.flights.reversed())
+        }
+        #endif
     }
 
     func fetchFlights(for airportCode: String) async {
         guard !airportCode.isEmpty else { return }
         isLoading = true
         errorMessage = nil
+
+        #if DEBUG
+        if UITestConfig.isUITesting {
+            departures = UITestConfig.flights
+            arrivals = Array(UITestConfig.flights.reversed())
+            isLoading = false
+            return
+        }
+        #endif
 
         do {
             let response = try await service.fetchFlights(for: airportCode)

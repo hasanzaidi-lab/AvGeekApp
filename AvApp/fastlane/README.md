@@ -21,7 +21,47 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 [bundle exec] fastlane ios tests
 ```
 
-Run unit tests
+Run all tests (unit + UI) using the AvApp scheme
+
+### ios test
+
+```sh
+[bundle exec] fastlane ios test
+```
+
+
+
+### ios demo
+
+```sh
+[bundle exec] fastlane ios demo
+```
+
+Simple demo lane
+
+### ios hello
+
+```sh
+[bundle exec] fastlane ios hello
+```
+
+Hello from fastlane
+
+### ios world
+
+```sh
+[bundle exec] fastlane ios world
+```
+
+Hello world example
+
+### ios quick_tests
+
+```sh
+[bundle exec] fastlane ios quick_tests
+```
+
+Quick smoke tests on a simulator
 
 ----
 

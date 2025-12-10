@@ -1,2 +1,20 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<testsuites tests='0' failures='0'/>
+<testsuites name='AvAppUITests.xctest' tests='9' failures='0'>
+  <testsuite name='AvAppTests.AvAppTests' tests='2' failures='0'>
+    <testcase classname='AvAppTests.AvAppTests' name='testExample' time='0.001'/>
+    <testcase classname='AvAppTests.AvAppTests' name='testPerformanceExample' time='0.808'/>
+  </testsuite>
+  <testsuite name='AvAppUITests.AvAppSnapshotTests' tests='1' failures='0'>
+    <testcase classname='AvAppUITests.AvAppSnapshotTests' name='test_flightList_aircraftDetail_and_map' time='11.008'/>
+  </testsuite>
+  <testsuite name='AvAppUITests.AvAppUITests' tests='2' failures='0'>
+    <testcase classname='AvAppUITests.AvAppUITests' name='testExample' time='3.673'/>
+    <testcase classname='AvAppUITests.AvAppUITests' name='testLaunchPerformance' time='25.305'/>
+  </testsuite>
+  <testsuite name='AvAppUITests.AvAppUITestsLaunchTests' tests='4' failures='0'>
+    <testcase classname='AvAppUITests.AvAppUITestsLaunchTests' name='testLaunch' time='3.896'/>
+    <testcase classname='AvAppUITests.AvAppUITestsLaunchTests' name='testLaunch' time='5.407'/>
+    <testcase classname='AvAppUITests.AvAppUITestsLaunchTests' name='testLaunch' time='7.405'/>
+    <testcase classname='AvAppUITests.AvAppUITestsLaunchTests' name='testLaunch' time='5.138'/>
+  </testsuite>
+</testsuites>

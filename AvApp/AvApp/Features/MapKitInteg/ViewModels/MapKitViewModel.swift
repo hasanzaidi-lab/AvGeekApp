@@ -34,6 +34,17 @@ final class MapKitViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         
+        #if DEBUG
+        if UITestConfig.isUITesting {
+            let track = UITestConfig.track
+            coordinates = UITestConfig.trackCoordinates
+            callsign = track.callsign?.trimmingCharacters(in: .whitespacesAndNewlines)
+            lastUpdate = Date(timeIntervalSince1970: track.endTime)
+            isLoading = false
+            return
+        }
+        #endif
+        
         Task {
             do {
                 let track = try await service.fetchTrack(icao24: icao24)

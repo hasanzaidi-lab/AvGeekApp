@@ -27,7 +27,7 @@ class AvAppSnapshotTests: XCTestCase {
 //        app.tabBars.buttons["Flights"].tap()
 
         // 02 – Tap first flight to open AircraftDetailView
-        let firstFlight = app.cells.matching(identifier: "flight-row").firstMatch
+        let firstFlight = app.descendants(matching: .any).matching(identifier: "flight-row").firstMatch
         XCTAssertTrue(firstFlight.waitForExistence(timeout: 5), "No flight row found")
         firstFlight.tap()
         snapshot("02-Aircraft-Detail")

@@ -75,6 +75,7 @@ struct FlightListView<Header: View>: View {
                                 arrivalQuality: qualityLine(label: "Arrival", quality: flight.arrival.quality),
                                 statusLine: statusLine(for: flight)
                             )
+                            .accessibilityIdentifier("flight-row")
                         }
                         .listRowSeparator(.hidden)
                         .listRowInsets(EdgeInsets())
@@ -142,7 +143,6 @@ private struct FlightRow: View {
                 statusBadge
             }
             .accessibilityElement(children: .contain)
-                .accessibilityIdentifier("flight-row")
                 .padding(16)
                 .background(
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
@@ -200,6 +200,8 @@ private struct FlightRow: View {
         )
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("flight-row")
     }
 
     private var statusBadge: some View {

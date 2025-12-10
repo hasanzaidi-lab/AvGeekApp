@@ -1,26 +1,54 @@
 # This file contains the fastlane.tools configuration
-# You can find the documentation at https://docs.fastlane.tools
-#
-# For a list of all available actions, check out
-#
-#     https://docs.fastlane.tools/actions
-#
-# For a list of all available plugins, check out
-#
-#     https://docs.fastlane.tools/plugins/available-plugins
-#
-
-# Uncomment the line if you want fastlane to automatically update itself
-# update_fastlane
+# Learn more: https://docs.fastlane.tools
 
 default_platform(:ios)
 
 platform :ios do
-  desc "Run unit tests"
+  desc "Run all tests (unit + UI) using the AvApp scheme"
   lane :tests do
     run_tests(
-      scheme: "AvApp" # <-- make sure this matches the scheme name in Xcode
-      # no project/workspace argument; fastlane will auto-detect AvApp.xcodeproj
+      project: "AvApp.xcodeproj",
+      scheme: "AvApp",
+      devices: [ENV["SIMULATOR_DEVICE"] || "iPhone 15 Pro"],
+      clean: true,
+      result_bundle: true,
+      xcargs: "-parallel-testing-enabled NO"
+    )
+  end
+
+  # Convenience alias to align with `fastlane test`
+  lane :test do
+    tests
+  end
+
+  desc "Simple demo lane"
+  lane :demo do
+    UI.message("🚀 Fastlane Demo Running!")
+    sh "echo '➡️  Running a shell command inside Fastlane...'"
+
+    UI.message("🔧 Pretending to build the app...")
+    version = get_version_number(xcodeproj: "AvApp.xcodeproj")
+    UI.message("📦 Current app version is: #{version}")
+    UI.message("🎉 Fastlane demo finished successfully!")
+  end
+
+  desc "Hello from fastlane"
+  lane :hello do
+    UI.message("👋 Hello from lane :hello!")
+  end
+
+  desc "Hello world example"
+  lane :world do
+    hello
+    UI.message("🌍 Welcome to Fastlane!")
+  end
+
+  desc "Quick smoke tests on a simulator"
+  lane :quick_tests do
+    scan(
+      project: "AvApp.xcodeproj",
+      scheme: "AvApp",
+      devices: [ENV["SIMULATOR_DEVICE"] || "iPhone 15 Pro"]
     )
   end
 end
