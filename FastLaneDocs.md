@@ -6,13 +6,11 @@
 
 Fastlane is used in AvApp to:
 
-* Run **unit + UI + snapshot tests** in a **repeatable**, simulator-stable environment
-* Provide a **single command** (`bundle exec fastlane tests`) that handles:
+* Run **unit + UI tests** and **snapshot runs** in a **repeatable**, simulator-stable environment
+* Provide a **single command** (`bundle _2.7.2_ exec fastlane tests`) that handles:
 
   * Simulator config
-  * Mock injection via launch flags
-  * Running UI tests with deterministic data
-  * Capturing snapshots (if enabled)
+  * Running the full test suite
   * Exporting result bundles for review
 * Enable **future CI integration** (GitHub Actions, Bitrise, Jenkins)
 
@@ -20,7 +18,34 @@ Fastlane simplifies QA verification and ensures AvApp’s UI remains stable acro
 
 ---
 
-# **2. Fastlane Folder Structure**
+# **2. Machine Setup (One-Time)**
+
+Fastlane lanes rely on Xcode, iOS simulators, and the repo-pinned Ruby gems.
+
+1) Install Xcode and the iOS simulator runtime for iOS 17.x (Xcode > Settings > Platforms).
+2) Launch Xcode once to accept licenses and install components.
+3) Ensure the command line tools point at Xcode:
+```
+xcode-select -p
+```
+4) Install Homebrew Ruby (recommended) to match Bundler 2.7.x:
+```
+brew install ruby
+export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
+```
+5) Install Bundler 2.7.2 for that Ruby:
+```
+gem install bundler -v 2.7.2 --user-install
+export PATH="$HOME/.local/share/gem/ruby/3.4.0/bin:$PATH"   # adjust if your gem path differs
+```
+6) From `AvApp/AvApp`, install gems:
+```
+bundle _2.7.2_ install --path vendor/bundle
+```
+
+---
+
+# **3. Fastlane Folder Structure**
 
 ```
 fastlane/
@@ -29,17 +54,17 @@ fastlane/
   SnapshotHelper.swift (generated)
 ```
 
-Developers run Fastlane through Bundler:
+Developers run Fastlane through Bundler from `AvApp/AvApp`:
 
 ```bash
-bundle exec fastlane <lane>
+bundle _2.7.2_ exec fastlane <lane>
 ```
 
 ---
 
-# **3. Fastfile Lanes**
+# **4. Fastfile Lanes**
 
-## **3.1 `tests` (primary lane)**
+## **4.1 `tests` (primary lane)**
 
 Runs the full **unit + UI test suite** on a known simulator.
 
@@ -48,9 +73,10 @@ lane :tests do
   run_tests(
     project: "AvApp.xcodeproj",
     scheme: "AvApp",
+    devices: [ENV["SIMULATOR_DEVICE"] || "iPhone 17 Pro"],
     clean: true,
-    parallel_testing: false,
-    device: ENV["SIMULATOR_DEVICE"] || "iPhone 15 Pro"
+    result_bundle: true,
+    xcargs: "-parallel-testing-enabled NO"
   )
 end
 ```
@@ -64,15 +90,16 @@ end
 
 ---
 
-## **3.2 `quick_tests` (smoke testing lane)**
+## **4.2 `quick_tests` (smoke testing lane)**
 
 Lightweight smoke tests on a selected device:
 
 ```ruby
 lane :quick_tests do
   scan(
+    project: "AvApp.xcodeproj",
     scheme: "AvApp",
-    device: "iPhone 15"
+    devices: [ENV["SIMULATOR_DEVICE"] || "iPhone 17 Pro"]
   )
 end
 ```
@@ -81,7 +108,29 @@ Used during rapid development to confirm that navigation and basic UI still load
 
 ---
 
-## **3.3 `demo` / `hello` / `world` (presentation lanes)**
+## **4.3 `snapshot` (UI screenshots lane)**
+
+Runs UI tests with deterministic data and captures screenshots:
+
+```ruby
+lane :snapshot do
+  snapshot(
+    project: "AvApp.xcodeproj",
+    scheme: "AvApp",
+    devices: [ENV["SIMULATOR_DEVICE"] || "iPhone 17 Pro"],
+    languages: ["en-US"],
+    clear_previous_screenshots: true,
+    override_status_bar: true,
+    xcargs: "-ui_testing_screenshots"
+  )
+end
+```
+
+This lane is used for marketing or QA snapshot verification.
+
+---
+
+## **4.4 `demo` / `hello` / `world` (presentation lanes)**
 
 Simple lanes used for teaching/demo purposes:
 
@@ -101,13 +150,11 @@ Useful for showing:
 
 ---
 
-# **4. Deterministic UI & Snapshot Test Support**
+# **5. Deterministic UI & Snapshot Test Support**
 
-Fastlane triggers the UI test target with flags such as:
+Snapshot lane runs with launch arguments such as:
 
-* `-ui_testing`
 * `-ui_testing_screenshots`
-* `-FASTLANE_SNAPSHOT`
 
 Inside AvApp, these flags activate the **mock data layer**, ensuring:
 
@@ -128,21 +175,20 @@ This is how Fastlane guarantees reproducibility across environments.
 
 ---
 
-# **5. Running Tests with Fastlane**
+# **6. Running Tests with Fastlane**
 
 ## **Full Suite**
 
 ```bash
-bundle exec fastlane tests
+bundle _2.7.2_ exec fastlane tests
 ```
 
 What happens:
 
-* Boot simulator → iPhone 15 Pro
+* Boot simulator → iPhone 17 Pro (or `SIMULATOR_DEVICE`)
 * Build app
 * Run unit tests
 * Run UI tests
-* Capture snapshots (if snapshot scheme enabled)
 * Export result bundle
 
 ---
@@ -150,14 +196,24 @@ What happens:
 ## **Smoke Tests**
 
 ```bash
-bundle exec fastlane quick_tests
+bundle _2.7.2_ exec fastlane quick_tests
 ```
 
 Runs a small set of tests without the full overhead.
 
 ---
 
-# **6. Example CI Integration (Future)**
+## **Snapshots**
+
+```bash
+bundle _2.7.2_ exec fastlane snapshot
+```
+
+Captures deterministic UI screenshots with mock data.
+
+---
+
+# **7. Example CI Integration (Future)**
 
 Fastlane is CI-ready because all automation is wrapped in lanes.
 
@@ -165,7 +221,7 @@ Example GitHub Actions step:
 
 ```yaml
 - name: Run Fastlane Tests
-  run: bundle exec fastlane tests
+  run: bundle _2.7.2_ exec fastlane tests
 ```
 
 Fastlane does all the heavy lifting:
@@ -178,7 +234,7 @@ Fastlane does all the heavy lifting:
 
 ---
 
-# **7. Why Fastlane Works Well for AvApp**
+# **8. Why Fastlane Works Well for AvApp**
 
 ### **✔ Deterministic Testing**
 
@@ -198,7 +254,7 @@ Lanes abstract away:
 Senior devs/QAs can review the app by simply running:
 
 ```bash
-bundle exec fastlane tests
+bundle _2.7.2_ exec fastlane tests
 ```
 
 ### **✔ Presentation-Friendly**
@@ -206,6 +262,3 @@ bundle exec fastlane tests
 The lightweight `demo` lane allows safe, quick fastlane walkthroughs during reviews.
 
 ---
-
-
-

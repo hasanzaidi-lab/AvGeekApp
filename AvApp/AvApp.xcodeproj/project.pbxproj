@@ -36,9 +36,33 @@
 		00BEDB422EEA34B500D6A532 /* SampleApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = SampleApp.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		00F2A4DE2EF9934A0073B708 /* Exceptions for "AvApp" folder in "AvApp" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				.gitignore,
+			);
+			target = 001E444E2E3BBF8400ABD394 /* AvApp */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		00F2A4E12EF994550073B708 /* Exceptions for "AvApp" folder in "Compile Sources" phase from "AvApp" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 001E444B2E3BBF8400ABD394 /* Sources */;
+			membershipExceptions = (
+				.gitignore,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		001E44512E3BBF8400ABD394 /* AvApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				00F2A4DE2EF9934A0073B708 /* Exceptions for "AvApp" folder in "AvApp" target */,
+				00F2A4E12EF994550073B708 /* Exceptions for "AvApp" folder in "Compile Sources" phase from "AvApp" target */,
+			);
 			path = AvApp;
 			sourceTree = "<group>";
 		};
@@ -533,6 +557,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = RTCBD3D2GX;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.Tracker.AvAppUITests;
@@ -549,6 +574,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = RTCBD3D2GX;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.Tracker.AvAppUITests;

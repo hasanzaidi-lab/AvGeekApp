@@ -1,0 +1,9 @@
+//
+//  .gitignore
+//  AvApp
+//
+//  Created by Hasan Zaidi on 12/22/25.
+//
+
+vendor/bundle/
+**/vendor/bundle/

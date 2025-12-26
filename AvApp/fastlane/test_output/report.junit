@@ -2,19 +2,19 @@
 <testsuites name='AvAppUITests.xctest' tests='9' failures='0'>
   <testsuite name='AvAppTests.AvAppTests' tests='2' failures='0'>
     <testcase classname='AvAppTests.AvAppTests' name='testExample' time='0.001'/>
-    <testcase classname='AvAppTests.AvAppTests' name='testPerformanceExample' time='0.569'/>
+    <testcase classname='AvAppTests.AvAppTests' name='testPerformanceExample' time='0.613'/>
   </testsuite>
   <testsuite name='AvAppUITests.AvAppSnapshotTests' tests='1' failures='0'>
-    <testcase classname='AvAppUITests.AvAppSnapshotTests' name='test_flightList_aircraftDetail_and_map' time='11.250'/>
+    <testcase classname='AvAppUITests.AvAppSnapshotTests' name='test_flightList_aircraftDetail_and_map' time='12.251'/>
   </testsuite>
   <testsuite name='AvAppUITests.AvAppUITests' tests='2' failures='0'>
-    <testcase classname='AvAppUITests.AvAppUITests' name='testExample' time='3.845'/>
-    <testcase classname='AvAppUITests.AvAppUITests' name='testLaunchPerformance' time='24.321'/>
+    <testcase classname='AvAppUITests.AvAppUITests' name='testExample' time='3.942'/>
+    <testcase classname='AvAppUITests.AvAppUITests' name='testLaunchPerformance' time='26.626'/>
   </testsuite>
   <testsuite name='AvAppUITests.AvAppUITestsLaunchTests' tests='4' failures='0'>
-    <testcase classname='AvAppUITests.AvAppUITestsLaunchTests' name='testLaunch' time='3.916'/>
-    <testcase classname='AvAppUITests.AvAppUITestsLaunchTests' name='testLaunch' time='5.088'/>
-    <testcase classname='AvAppUITests.AvAppUITestsLaunchTests' name='testLaunch' time='6.616'/>
-    <testcase classname='AvAppUITests.AvAppUITestsLaunchTests' name='testLaunch' time='5.140'/>
+    <testcase classname='AvAppUITests.AvAppUITestsLaunchTests' name='testLaunch' time='3.966'/>
+    <testcase classname='AvAppUITests.AvAppUITestsLaunchTests' name='testLaunch' time='5.057'/>
+    <testcase classname='AvAppUITests.AvAppUITestsLaunchTests' name='testLaunch' time='6.672'/>
+    <testcase classname='AvAppUITests.AvAppUITestsLaunchTests' name='testLaunch' time='4.953'/>
   </testsuite>
 </testsuites>

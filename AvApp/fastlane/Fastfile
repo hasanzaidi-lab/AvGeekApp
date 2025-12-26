@@ -9,7 +9,7 @@ platform :ios do
     run_tests(
       project: "AvApp.xcodeproj",
       scheme: "AvApp",
-      devices: [ENV["SIMULATOR_DEVICE"] || "iPhone 15 Pro"],
+      devices: [ENV["SIMULATOR_DEVICE"] || "iPhone 17 Pro"],
       clean: true,
       result_bundle: true,
       xcargs: "-parallel-testing-enabled NO"
@@ -48,7 +48,7 @@ platform :ios do
     scan(
       project: "AvApp.xcodeproj",
       scheme: "AvApp",
-      devices: [ENV["SIMULATOR_DEVICE"] || "iPhone 15 Pro"]
+      devices: [ENV["SIMULATOR_DEVICE"] || "iPhone 17 Pro"]
     )
   end
 
