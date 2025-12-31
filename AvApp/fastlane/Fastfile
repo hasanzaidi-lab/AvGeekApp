@@ -64,4 +64,18 @@ platform :ios do
       xcargs: "-ui_testing_screenshots"
     )
   end
+
+desc "To export our app"
+  lane :export_app do
+    gym(
+      project: "AvApp.xcodeproj",
+      scheme: "AvApp",
+     export_method: "app-store", # or: "ad-hoc", "development", "enterprise",
+      output_directory: "build",
+	export_xcargs: "-allowProvisioningUpdates",
+      output_name: "ReleaseAppAvApp.ipa",
+      clean: true
+    )
+  end
+
 end

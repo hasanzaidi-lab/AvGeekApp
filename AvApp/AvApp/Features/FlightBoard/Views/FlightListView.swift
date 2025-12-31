@@ -102,6 +102,7 @@ struct FlightListView<Header: View>: View {
     }
 }
 
+#if DEBUG
 #Preview {
     NavigationStack {
         FlightListView(
@@ -113,6 +114,7 @@ struct FlightListView<Header: View>: View {
         }
     }
 }
+#endif
 
 private struct FlightRow: View {
     let flight: FlightData
