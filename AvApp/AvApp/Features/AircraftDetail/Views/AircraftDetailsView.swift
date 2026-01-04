@@ -66,6 +66,7 @@ struct AircraftDetailView: View {
                     }
                 }
                 .listStyle(.insetGrouped)
+                .accessibilityIdentifier("aircraft-detail-list")
             } else if let error = viewModel.error {
                 VStack(spacing: 8) {
                     Image(systemName: "exclamationmark.triangle.fill")

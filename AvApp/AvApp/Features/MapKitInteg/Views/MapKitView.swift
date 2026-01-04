@@ -9,17 +9,18 @@ import SwiftUI
 import MapKit
 
 public struct MapKitView: View {
-    @StateObject private var viewModel: MapKitViewModel
-    private let icao24: String
+    @StateObject private var coordinator: MapKitCoordinator
+    @ObservedObject private var viewModel: MapKitViewModel
     
     public init(icao24: String) {
-        self.icao24 = icao24
-        _viewModel = StateObject(wrappedValue: MapKitViewModel())
+        let coordinator = MapKitCoordinator(icao24: icao24)
+        _coordinator = StateObject(wrappedValue: coordinator)
+        _viewModel = ObservedObject(wrappedValue: coordinator.viewModel)
     }
 
-    init(icao24: String, viewModel: MapKitViewModel) {
-        self.icao24 = icao24
-        _viewModel = StateObject(wrappedValue: viewModel)
+    init(coordinator: MapKitCoordinator) {
+        _coordinator = StateObject(wrappedValue: coordinator)
+        _viewModel = ObservedObject(wrappedValue: coordinator.viewModel)
     }
     
     public var body: some View {
@@ -41,6 +42,7 @@ public struct MapKitView: View {
                 TrackPolylineMap(coordinates: viewModel.coordinates)
                     .frame(height: 220)
                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .accessibilityIdentifier("track-map")
                     .overlay(alignment: .topLeading) {
                         if let callsign = viewModel.callsign, !callsign.isEmpty {
                             Text(callsign)
@@ -61,8 +63,11 @@ public struct MapKitView: View {
                     .foregroundColor(.secondary)
             }
         }
-        .task(id: icao24) {
-            viewModel.loadTrack(for: icao24)
+        .task(id: coordinator.icao24) {
+            coordinator.loadTrack()
+        }
+        .onAppear {
+            coordinator.onAppear()
         }
     }
 }

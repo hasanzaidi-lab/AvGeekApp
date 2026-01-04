@@ -9,6 +9,12 @@ AvApp is a SwiftUI-based flight tracker that surfaces airport departures/arrival
 - Swift Package Manager for the reusable networking layer (`Packages/AvAppNetworking`)
 - XCTest targets (`AvAppTests`, `AvAppUITests`, `Packages/AvAppNetworking/Tests`)
 
+## Feature highlights
+- Flight board listing departures and arrivals with filtering, search suggestions, and loading/error states.
+- Aircraft detail drill-down backed by `AircraftService`, sharing the same networking/core models as the board.
+- In-progress MapKit integration (gated behind `Features/MapKitInteg`) for experimenting with radar overlays.
+- Shared networking package (`AvAppNetworking`) that can power other Swift targets or playground spikes.
+
 ## Directory layout
 ```
 AvApp/
@@ -43,6 +49,29 @@ AvApp/
 3. **Add credentials** – replace the placeholder RapidAPI keys inside `Packages/AvAppNetworking/Sources/AvAppNetworking/FlightService.swift` and `AircraftService.swift` with your own. Consider moving them into an `xcconfig` or using secrets in the future.
 4. **Run** – select the `AvApp` scheme and target a simulator or device. `FlightBoardView` boots through the `FlightBoardCoordinator` and automatically fetches departures/arrivals for the default airport code (MCO).
 
+## Configuration & environment
+| What | How | Notes |
+| --- | --- | --- |
+| RapidAPI key | Replace the `apiKey` constants in `FlightService.swift` and `AircraftService.swift` or inject them when creating the services. | Keep secrets out of source control; Xcode `xcconfig` files or environment variables + `ProcessInfo.processInfo.environment` work well. |
+| Default airport | Update `FlightBoardCoordinator(airportCode:)` default or inject at the composition root (`AvAppApp`). | Airport suggestions shown in `FlightBoardAirportSearchBar.defaultSuggestions`. |
+| Mock data | `Packages/AvAppNetworking/Sources/AvAppNetworking/Support/FlightMocks.swift`. | Use for SwiftUI previews or offline demos. |
+| Map experiments | Enable and iterate inside `AvApp/Features/MapKitInteg`. | Ship-ready code should eventually move into its own feature folder. |
+
+### Command line builds
+CLI workflows are helpful for CI or scripted smoke tests.
+
+```bash
+# Resolve packages and build the app target
+xcodebuild \
+  -project AvApp.xcodeproj \
+  -scheme AvApp \
+  -destination 'platform=iOS Simulator,name=iPhone 16' \
+  build
+
+# Package-only tests
+swift test --package-path Packages/AvAppNetworking
+```
+
 ## Development tips
 - Use `FlightBoardViewModel` (wired through `FlightBoardCoordinator`) for departures/arrivals. Inject mocks into the coordinator when running previews or unit tests.
 - `FlightService` now centralizes both departure and arrival queries. Mock data lives in `FlightMocks.swift` for previews/tests.
@@ -53,8 +82,25 @@ AvApp/
 - From Xcode: `⌘U` runs `AvAppTests` and `AvAppUITests`.
 - Package tests: `swift test --package-path Packages/AvAppNetworking`.
 
+## Troubleshooting
+- **No flights shown / empty list** – confirm RapidAPI quota, watch the Xcode console for `NetworkError` descriptions, and try a different airport code (e.g. JFK or LAX).
+- **403 errors** – your RapidAPI key is invalid or missing; make sure both `FlightService` and `AircraftService` share the same updated key.
+- **Package fails to resolve** – run `File > Packages > Reset Package Caches` or delete `DerivedData`. CI should use `xcodebuild -resolvePackageDependencies`.
+- **MapKit previews crash** – the prototype layer still assumes simulator availability; wrap MapKit code in `#if canImport(MapKit)` blocks if targeting macOS previews.
+
 ## Further reading
 - `docs/ARCHITECTURE.md` — rationale behind the layered structure plus extension guidelines.
+
+## Documentation map
+- `docs/ARCHITECTURE.md` – layering, dependency rules, and coordinator guidance.
+- `Packages/AvAppNetworking/README.md` *(add as needed)* – include endpoint specifics if the package is published separately.
+- Inline doc comments on `FlightService`, `AircraftService`, and `FlightBoardViewModel` describe threading and data refresh behavior.
+
+## Contributing
+1. Use feature branches and keep commits scoped to a single concern (e.g. “Add arrivals filter”).
+2. Run `⌘U` (or `xcodebuild test`) plus `swift test --package-path Packages/AvAppNetworking` before opening a PR.
+3. Update this README and `docs/ARCHITECTURE.md` whenever you add a feature or change a public API.
+4. Prefer protocol-driven additions so networking logic remains testable without live network calls.
 
 ## Next steps
 - Externalize RapidAPI secrets via `xcconfig` or environment variables.

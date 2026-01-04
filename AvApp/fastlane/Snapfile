@@ -1,0 +1,28 @@
+# devices([
+#  "iPhone 16 Pro",
+#  "iPhone 16 Pro Max"
+# ])
+
+# languages([
+#  "en-US"
+#])
+
+scheme("AvApp")   # UITest host scheme
+
+# output_directory("./screenshots")
+
+# clear_previous_screenshots(true)
+
+# override_status_bar(true)
+launch_arguments(["-ui_testing_screenshots"])
+
+devices([
+  "iPhone 17 Pro"
+])
+
+languages([
+  "en-US"
+])
+
+clear_previous_screenshots(true)
+override_status_bar(true)

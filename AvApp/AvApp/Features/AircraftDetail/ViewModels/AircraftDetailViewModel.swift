@@ -24,6 +24,14 @@ class AircraftDetailViewModel: ObservableObject {
         guard !registration.isEmpty else { return }
         isLoading = true
         error = nil
+        
+        #if DEBUG
+        if UITestConfig.isUITesting {
+            aircraft = UITestConfig.aircraftDetail
+            isLoading = false
+            return
+        }
+        #endif
 
         Task {
             do {
