@@ -1,0 +1,81 @@
+# This file contains the fastlane.tools configuration
+# Learn more: https://docs.fastlane.tools
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Run all tests (unit + UI) using the AvApp scheme"
+  lane :tests do
+    run_tests(
+      project: "AvApp.xcodeproj",
+      scheme: "AvApp",
+      devices: [ENV["SIMULATOR_DEVICE"] || "iPhone 17 Pro"],
+      clean: true,
+      result_bundle: true,
+      xcargs: "-parallel-testing-enabled NO"
+    )
+  end
+
+  # Convenience alias to align with `fastlane test`
+  lane :test do
+    tests
+  end
+
+  desc "Simple demo lane"
+  lane :demo do
+    UI.message("🚀 Fastlane Demo Running!")
+    sh "echo '➡️  Running a shell command inside Fastlane...'"
+
+    UI.message("🔧 Pretending to build the app...")
+    version = get_version_number(xcodeproj: "AvApp.xcodeproj")
+    UI.message("📦 Current app version is: #{version}")
+    UI.message("🎉 Fastlane demo finished successfully!")
+  end
+
+  desc "Hello from fastlane"
+  lane :hello do
+    UI.message("👋 Hello from lane :hello!")
+  end
+
+  desc "Hello world example"
+  lane :world do
+    hello
+    UI.message("🌍 Welcome to Fastlane!")
+  end
+
+  desc "Quick smoke tests on a simulator"
+  lane :quick_tests do
+    scan(
+      project: "AvApp.xcodeproj",
+      scheme: "AvApp",
+      devices: [ENV["SIMULATOR_DEVICE"] || "iPhone 17 Pro"]
+    )
+  end
+
+  desc "Generate UI screenshots with fastlane snapshot"
+  lane :snapshot do
+    snapshot(
+      project: "AvApp.xcodeproj",
+      scheme: "AvApp",
+      devices: [ENV["SIMULATOR_DEVICE"] || "iPhone 17 Pro"],
+      languages: ["en-US"],
+      clear_previous_screenshots: true,
+      override_status_bar: true,
+      xcargs: "-ui_testing_screenshots"
+    )
+  end
+
+desc "To export our app"
+  lane :export_app do
+    gym(
+      project: "AvApp.xcodeproj",
+      scheme: "AvApp",
+     export_method: "app-store", # or: "ad-hoc", "development", "enterprise",
+      output_directory: "build",
+	export_xcargs: "-allowProvisioningUpdates",
+      output_name: "ReleaseAppAvApp.ipa",
+      clean: true
+    )
+  end
+
+end
