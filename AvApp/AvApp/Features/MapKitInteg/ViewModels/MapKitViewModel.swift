@@ -17,23 +17,23 @@ final class MapKitViewModel: ObservableObject {
     @Published private(set) var lastUpdate: Date?
     @Published private(set) var isLoading = false
     @Published var errorMessage: String?
-    
-    private let service: TrackService
-    
-    init(service: TrackService = TrackService()) {
+
+    private let service: any TrackFetching
+
+    init(service: any TrackFetching) {
         self.service = service
     }
-    
-    func loadTrack(for icao24: String) {
+
+    func loadTrack(for icao24: String) async {
         guard !icao24.isEmpty else {
             coordinates = []
             errorMessage = "Missing ICAO24 identifier."
             return
         }
-        
+
         isLoading = true
         errorMessage = nil
-        
+
         #if DEBUG
         if UITestConfig.isUITesting {
             let track = UITestConfig.track
@@ -44,19 +44,24 @@ final class MapKitViewModel: ObservableObject {
             return
         }
         #endif
-        
-        Task {
-            do {
-                let track = try await service.fetchTrack(icao24: icao24)
-                self.coordinates = track.path.map(\.coordinate)
-                self.callsign = track.callsign?.trimmingCharacters(in: .whitespacesAndNewlines)
-                self.lastUpdate = Date(timeIntervalSince1970: track.endTime)
-            } catch {
-                self.coordinates = []
-                self.errorMessage = error.localizedDescription
+
+        do {
+            let track = try await service.fetchTrack(icao24: icao24)
+            coordinates = track.path.map(\.coordinate)
+            callsign = track.callsign?.trimmingCharacters(in: .whitespacesAndNewlines)
+            lastUpdate = Date(timeIntervalSince1970: track.endTime)
+        } catch is CancellationError {
+            isLoading = false
+            return
+        } catch {
+            if Task.isCancelled {
+                isLoading = false
+                return
             }
-            
-            self.isLoading = false
+            coordinates = []
+            errorMessage = error.localizedDescription
         }
+
+        isLoading = false
     }
 }

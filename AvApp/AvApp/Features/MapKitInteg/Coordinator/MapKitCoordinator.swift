@@ -6,34 +6,23 @@
 //
 
 import Foundation
+import AvAppNetworking
 
 @MainActor
 final class MapKitCoordinator: ObservableObject {
     @Published var icao24: String
     let viewModel: MapKitViewModel
 
-    init(
-        icao24: String,
-        viewModel: MapKitViewModel? = nil
-    ) {
+    init(icao24: String, trackService: any TrackFetching) {
         self.icao24 = icao24
-        if let viewModel {
-            self.viewModel = viewModel
-        } else {
-            self.viewModel = MapKitViewModel()
-        }
+        self.viewModel = MapKitViewModel(service: trackService)
     }
 
-    func onAppear() {
-        loadTrack()
-    }
-
-    func loadTrack(for icao24: String? = nil) {
+    func loadTrack(for icao24: String? = nil) async {
         if let newValue = icao24, !newValue.isEmpty {
             self.icao24 = newValue
         }
         guard !self.icao24.isEmpty else { return }
-        viewModel.loadTrack(for: self.icao24)
+        await viewModel.loadTrack(for: self.icao24)
     }
 }
-

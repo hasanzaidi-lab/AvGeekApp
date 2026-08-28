@@ -4,12 +4,21 @@
 default_platform(:ios)
 
 platform :ios do
+  project_path = "AvApp.xcodeproj"
+  scheme_name = "AvApp"
+  default_device = ENV["SIMULATOR_DEVICE"] || "iPhone 17 Pro"
+
+  desc "Run AvAppNetworking package tests"
+  lane :package_tests do
+    sh("swift test --package-path ../Packages/AvAppNetworking")
+  end
+
   desc "Run all tests (unit + UI) using the AvApp scheme"
   lane :tests do
     run_tests(
-      project: "AvApp.xcodeproj",
-      scheme: "AvApp",
-      devices: [ENV["SIMULATOR_DEVICE"] || "iPhone 17 Pro"],
+      project: project_path,
+      scheme: scheme_name,
+      devices: [default_device],
       clean: true,
       result_bundle: true,
       xcargs: "-parallel-testing-enabled NO"
@@ -46,18 +55,18 @@ platform :ios do
   desc "Quick smoke tests on a simulator"
   lane :quick_tests do
     scan(
-      project: "AvApp.xcodeproj",
-      scheme: "AvApp",
-      devices: [ENV["SIMULATOR_DEVICE"] || "iPhone 17 Pro"]
+      project: project_path,
+      scheme: scheme_name,
+      devices: [default_device]
     )
   end
 
   desc "Generate UI screenshots with fastlane snapshot"
   lane :snapshot do
     snapshot(
-      project: "AvApp.xcodeproj",
-      scheme: "AvApp",
-      devices: [ENV["SIMULATOR_DEVICE"] || "iPhone 17 Pro"],
+      project: project_path,
+      scheme: scheme_name,
+      devices: [default_device],
       languages: ["en-US"],
       clear_previous_screenshots: true,
       override_status_bar: true,
@@ -65,17 +74,33 @@ platform :ios do
     )
   end
 
-desc "To export our app"
+  desc "Export IPA for App Store"
   lane :export_app do
     gym(
-      project: "AvApp.xcodeproj",
-      scheme: "AvApp",
-     export_method: "app-store", # or: "ad-hoc", "development", "enterprise",
+      project: project_path,
+      scheme: scheme_name,
+      export_method: "app-store", # or: "ad-hoc", "development", "enterprise"
       output_directory: "build",
-	export_xcargs: "-allowProvisioningUpdates",
+      export_xcargs: "-allowProvisioningUpdates",
       output_name: "ReleaseAppAvApp.ipa",
       clean: true
     )
   end
 
+  desc "Upload IPA to App Store Connect"
+  lane :upload_app do
+    deliver(
+      ipa: "build/ReleaseAppAvApp.ipa",
+      skip_screenshots: true,
+      skip_metadata: true,
+      skip_app_version_update: true,
+      force: true
+    )
+  end
+
+  desc "Export and upload"
+  lane :release_app do
+    export_app
+    upload_app
+  end
 end

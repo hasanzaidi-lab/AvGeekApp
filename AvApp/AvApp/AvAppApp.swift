@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct AvAppApp: App {
+    @StateObject private var session = AppSession()
+
     var body: some Scene {
         WindowGroup {
-            FlightBoardView()
+            FlightBoardView(coordinator: session.flightBoardCoordinator)
+                .environment(\.appDependencies, session.dependencies)
         }
     }
 }

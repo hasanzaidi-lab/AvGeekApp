@@ -8,13 +8,27 @@
 import Foundation
 import CoreLocation
 
-public struct AircraftTrack: Decodable {
+public struct AircraftTrack: Decodable, Sendable {
     public let icao24: String
     public let startTime: TimeInterval
     public let endTime: TimeInterval
     public let callsign: String?
     public let path: [TrackPoint]
     
+    public init(
+        icao24: String,
+        startTime: TimeInterval,
+        endTime: TimeInterval,
+        callsign: String?,
+        path: [TrackPoint]
+    ) {
+        self.icao24 = icao24
+        self.startTime = startTime
+        self.endTime = endTime
+        self.callsign = callsign
+        self.path = path
+    }
+
     enum CodingKeys: String, CodingKey {
         case icao24
         case startTime
@@ -24,7 +38,7 @@ public struct AircraftTrack: Decodable {
     }
 }
 
-public struct TrackPoint: Decodable, Identifiable {
+public struct TrackPoint: Decodable, Identifiable, Sendable {
     public let timestamp: TimeInterval
     public let latitude: Double
     public let longitude: Double

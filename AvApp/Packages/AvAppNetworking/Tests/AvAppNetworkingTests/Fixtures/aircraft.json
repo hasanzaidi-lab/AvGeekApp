@@ -1,0 +1,16 @@
+{
+  "id": 1,
+  "reg": "N123AA",
+  "active": true,
+  "isFreighter": false,
+  "verified": true,
+  "model": "Airbus A321-231",
+  "modelCode": "A321",
+  "typeName": "A321",
+  "airlineName": "American Airlines",
+  "hexIcao": "a1b2c3",
+  "numSeats": 190,
+  "numEngines": 2,
+  "engineType": "CFM LEAP-1A",
+  "ageYears": 5.5
+}

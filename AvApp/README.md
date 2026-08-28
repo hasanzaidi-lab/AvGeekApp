@@ -46,13 +46,13 @@ AvApp/
 ## Getting started
 1. **Install tools** – Xcode 16.0+ (Swift 6 toolchain). The package manifest targets iOS 15+, macOS 12+, tvOS 15+, watchOS 8+.
 2. **Open the workspace** – double-click `AvApp/AvApp.xcodeproj`. Xcode detects the local package under `Packages/AvAppNetworking` automatically.
-3. **Add credentials** – replace the placeholder RapidAPI keys inside `Packages/AvAppNetworking/Sources/AvAppNetworking/FlightService.swift` and `AircraftService.swift` with your own. Consider moving them into an `xcconfig` or using secrets in the future.
+3. **Add credentials** – copy `AvApp/Config/Secrets.example.plist` to `AvApp/Config/Secrets.plist`, or copy `Secrets.xcconfig.example` to `Secrets.xcconfig`, then paste your RapidAPI key. Both files are gitignored. You can also set the `RAPIDAPI_KEY` environment variable.
 4. **Run** – select the `AvApp` scheme and target a simulator or device. `FlightBoardView` boots through the `FlightBoardCoordinator` and automatically fetches departures/arrivals for the default airport code (MCO).
 
 ## Configuration & environment
 | What | How | Notes |
 | --- | --- | --- |
-| RapidAPI key | Replace the `apiKey` constants in `FlightService.swift` and `AircraftService.swift` or inject them when creating the services. | Keep secrets out of source control; Xcode `xcconfig` files or environment variables + `ProcessInfo.processInfo.environment` work well. |
+| RapidAPI key | Copy `AvApp/Config/Secrets.example.plist` to `AvApp/Config/Secrets.plist`, copy `Secrets.xcconfig.example` to `Secrets.xcconfig`, or set `RAPIDAPI_KEY`. | Keep secrets out of source control. Rotate any key that was previously committed. |
 | Default airport | Update `FlightBoardCoordinator(airportCode:)` default or inject at the composition root (`AvAppApp`). | Airport suggestions shown in `FlightBoardAirportSearchBar.defaultSuggestions`. |
 | Mock data | `Packages/AvAppNetworking/Sources/AvAppNetworking/Support/FlightMocks.swift`. | Use for SwiftUI previews or offline demos. |
 | Map experiments | Enable and iterate inside `AvApp/Features/MapKitInteg`. | Ship-ready code should eventually move into its own feature folder. |
@@ -84,12 +84,13 @@ swift test --package-path Packages/AvAppNetworking
 
 ## Troubleshooting
 - **No flights shown / empty list** – confirm RapidAPI quota, watch the Xcode console for `NetworkError` descriptions, and try a different airport code (e.g. JFK or LAX).
-- **403 errors** – your RapidAPI key is invalid or missing; make sure both `FlightService` and `AircraftService` share the same updated key.
+- **403 errors** – your RapidAPI key is invalid or missing; set `RAPIDAPI_KEY` or add it to gitignored `AvApp/Config/Secrets.plist`.
 - **Package fails to resolve** – run `File > Packages > Reset Package Caches` or delete `DerivedData`. CI should use `xcodebuild -resolvePackageDependencies`.
 - **MapKit previews crash** – the prototype layer still assumes simulator availability; wrap MapKit code in `#if canImport(MapKit)` blocks if targeting macOS previews.
 
 ## Further reading
 - `docs/ARCHITECTURE.md` — rationale behind the layered structure plus extension guidelines.
+- `docs/IMPLEMENTATION_NOTES.md` — complete record of the security, networking, MVVM-C, UI, test, CI, and cleanup changes in this refactor.
 
 ## Documentation map
 - `docs/ARCHITECTURE.md` – layering, dependency rules, and coordinator guidance.
@@ -103,6 +104,6 @@ swift test --package-path Packages/AvAppNetworking
 4. Prefer protocol-driven additions so networking logic remains testable without live network calls.
 
 ## Next steps
-- Externalize RapidAPI secrets via `xcconfig` or environment variables.
-- Expand MapKit integration by reusing the networking package for live flight positions.
-- Add snapshot/UI tests covering the tabbed flight list flow.
+- Rotate any RapidAPI key that was previously committed in source.
+- Expand MapKit integration by reusing live flight positions on a dedicated map tab.
+- Keep RapidAPI keys out of git; rotate any key that was previously committed.

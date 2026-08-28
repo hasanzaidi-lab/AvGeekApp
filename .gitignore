@@ -1,15 +1,8 @@
-//
-//  .gitignore
-//  AvApp
-//
-//  Created by Hasan Zaidi on 12/22/25.
-//
-
-## Bundler
+# Bundler
 vendor/bundle/
 **/vendor/bundle/
 
-## Xcode build products
+# Xcode build products
 DerivedData/
 build/
 *.xcarchive
@@ -18,25 +11,33 @@ build/
 *.dSYM.zip
 *.xcresult
 
-## Xcode user data
+# Xcode user data
 xcuserdata/
 *.xcuserdatad/
 *.xcuserstate
 
-## fastlane outputs
+# SwiftPM
+.build/
+.swiftpm/xcode/xcuserdata/
+
+# fastlane outputs
 fastlane/report.xml
 fastlane/test_output/
 fastlane/screenshots/
+fastlane/Preview.html
+**/fastlane/report.xml
+**/fastlane/test_output/
+**/fastlane/screenshots/
 
-## macOS
+# macOS
 .DS_Store
 
-## Secrets and signing assets
+# Secrets and signing assets
 .env
 *.p12
 *.mobileprovision
+*.certSigningRequest
 Secrets.plist
 **/Secrets.plist
 Secrets.xcconfig
 **/Secrets.xcconfig
-Secrets.plist

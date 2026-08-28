@@ -9,7 +9,7 @@ import SwiftUI
 import AvAppNetworking
 
 struct FlightBoardView: View {
-    @StateObject private var coordinator = FlightBoardCoordinator()
+    @ObservedObject var coordinator: FlightBoardCoordinator
 
     var body: some View {
         ZStack {
@@ -24,7 +24,10 @@ struct FlightBoardView: View {
                 FlightListContainer(
                     title: "Departures from \(coordinator.airportCode)",
                     flights: coordinator.departures,
-                    searchText: $coordinator.flightSearchText
+                    searchText: $coordinator.flightSearchText,
+                    path: $coordinator.departuresPath,
+                    onSelectFlight: coordinator.showAircraftDetail,
+                    onRefresh: { await coordinator.fetchFlights() }
                 ) {
                     headerContent
                 }
@@ -34,7 +37,10 @@ struct FlightBoardView: View {
                 FlightListContainer(
                     title: "Arrivals to \(coordinator.airportCode)",
                     flights: coordinator.arrivals,
-                    searchText: $coordinator.flightSearchText
+                    searchText: $coordinator.flightSearchText,
+                    path: $coordinator.arrivalsPath,
+                    onSelectFlight: coordinator.showAircraftDetail,
+                    onRefresh: { await coordinator.fetchFlights() }
                 ) {
                     headerContent
                 }
@@ -42,7 +48,8 @@ struct FlightBoardView: View {
                 .tabItem { Label("Arrivals", systemImage: FlightBoardCoordinator.Tab.arrivals.systemImage) }
             }
         }
-        .task { coordinator.onAppear() }
+        .task { await coordinator.start() }
+        .onDisappear { coordinator.stop() }
         .overlay(alignment: .bottom) {
             if coordinator.isLoading {
                 ProgressView("Refreshing flights...")
@@ -59,7 +66,7 @@ struct FlightBoardView: View {
                 set: { if !$0 { coordinator.dismissError() } }
             ),
             actions: {
-                Button("Retry") { coordinator.refresh() }
+                Button("Retry") { Task { await coordinator.refresh() } }
                 Button("Dismiss", role: .cancel) { coordinator.dismissError() }
             },
             message: {
@@ -73,16 +80,24 @@ private struct FlightListContainer<Header: View>: View {
     let title: String
     let flights: [FlightData]
     @Binding var searchText: String
+    @Binding var path: NavigationPath
+    let onSelectFlight: (FlightData) -> Void
+    let onRefresh: () async -> Void
     @ViewBuilder var header: () -> Header
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             FlightListView(
                 flights: flights,
                 title: title,
                 searchText: $searchText,
+                onRefresh: onRefresh,
+                onSelectFlight: onSelectFlight,
                 header: header
             )
+            .navigationDestination(for: AircraftDetailRoute.self) { route in
+                AircraftDetailView(registration: route.registration)
+            }
         }
     }
 }
@@ -103,7 +118,7 @@ private extension FlightBoardView {
                 code: $coordinator.airportCode,
                 suggestedCodes: FlightBoardAirportSearchBar.defaultSuggestions,
                 onSubmit: { await coordinator.fetchFlights(for: $0) },
-                onRefresh: coordinator.refresh
+                onRefresh: { Task { await coordinator.refresh() } }
             )
         }
         .padding(.horizontal)
@@ -111,4 +126,7 @@ private extension FlightBoardView {
     }
 }
 
-#Preview { FlightBoardView() }
+#Preview {
+    FlightBoardView(coordinator: FlightBoardCoordinator(service: MockFlightService()))
+        .environment(\.appDependencies, .preview)
+}

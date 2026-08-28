@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  networking:
+    name: AvAppNetworking tests
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run package tests
+        run: swift test --package-path AvApp/Packages/AvAppNetworking
+
+  app:
+    name: AvApp unit tests
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run app unit tests
+        working-directory: AvApp
+        run: |
+          xcodebuild test \
+            -project AvApp.xcodeproj \
+            -scheme AvApp \
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            -only-testing:AvAppTests \
+            CODE_SIGNING_ALLOWED=NO

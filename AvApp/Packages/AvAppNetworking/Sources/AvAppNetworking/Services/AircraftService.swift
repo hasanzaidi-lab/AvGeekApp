@@ -7,33 +7,38 @@
 
 import Foundation
 
-// getting details about the selected aircrafts
-public final class AircraftService {
+public final class AircraftService: AircraftFetching, Sendable {
     private let client: NetworkClient
+    private let apiKey: String
+    private let host: String
     private let baseURL = "https://aerodatabox.p.rapidapi.com/aircrafts/reg/"
-    private let headers: [String: String]
-    
-    nonisolated(unsafe) public static let shared = AircraftService(
-        client: URLSessionNetworkClient(), apiKey: "31bdfc9f18msh533e951dc1c6231p15dca6jsn722cdc0000a9"
-    )
-    
-    public init(client: NetworkClient, apiKey: String, host: String = "aerodatabox.p.rapidapi.com") {
+
+    public init(
+        client: NetworkClient = URLSessionNetworkClient(),
+        apiKey: String,
+        host: String = "aerodatabox.p.rapidapi.com"
+    ) {
         self.client = client
-        self.headers = [
-            "x-rapidapi-host": host,
-            "x-rapidapi-key": apiKey
-        ]
+        self.apiKey = apiKey
+        self.host = host
     }
-    
+
     public func fetchAircraftDetail(registration: String) async throws -> AircraftDetail {
-        guard let url = URL(string: baseURL + registration) else {
-            throw NetworkError.invalidURL(baseURL + registration)
+        guard !apiKey.isEmpty else {
+            throw NetworkError.missingAPIKey
         }
-        
+
+        let sanitized = registration.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+        let urlString = baseURL + sanitized
+        guard let url = URL(string: urlString) else {
+            throw NetworkError.invalidURL(urlString)
+        }
+
         var request = URLRequest(url: url)
-        headers.forEach { request.setValue($0.value, forHTTPHeaderField: $0.key) }
-        
+        request.httpMethod = "GET"
+        request.setValue(host, forHTTPHeaderField: "x-rapidapi-host")
+        request.setValue(apiKey, forHTTPHeaderField: "x-rapidapi-key")
+
         return try await client.request(request)
     }
 }
-

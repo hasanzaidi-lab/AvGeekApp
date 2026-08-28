@@ -7,18 +7,14 @@
 
 import SwiftUI
 import MapKit
+import AvAppNetworking
 
 public struct MapKitView: View {
     @StateObject private var coordinator: MapKitCoordinator
     @ObservedObject private var viewModel: MapKitViewModel
-    
-    public init(icao24: String) {
-        let coordinator = MapKitCoordinator(icao24: icao24)
-        _coordinator = StateObject(wrappedValue: coordinator)
-        _viewModel = ObservedObject(wrappedValue: coordinator.viewModel)
-    }
 
-    init(coordinator: MapKitCoordinator) {
+    public init(icao24: String, trackService: any TrackFetching) {
+        let coordinator = MapKitCoordinator(icao24: icao24, trackService: trackService)
         _coordinator = StateObject(wrappedValue: coordinator)
         _viewModel = ObservedObject(wrappedValue: coordinator.viewModel)
     }
@@ -64,10 +60,7 @@ public struct MapKitView: View {
             }
         }
         .task(id: coordinator.icao24) {
-            coordinator.loadTrack()
-        }
-        .onAppear {
-            coordinator.onAppear()
+            await coordinator.loadTrack()
         }
     }
 }
@@ -177,6 +170,6 @@ private final class FlightTrackAnnotation: NSObject, MKAnnotation {
 }
 
 #Preview {
-    MapKitView(icao24: "a7bfa0")
+    MapKitView(icao24: "a7bfa0", trackService: MockTrackService())
         .padding()
 }

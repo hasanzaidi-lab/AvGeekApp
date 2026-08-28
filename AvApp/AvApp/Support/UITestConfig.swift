@@ -9,10 +9,32 @@ enum UITestConfig {
         return arguments.contains("-ui_testing_screenshots")
         || arguments.contains("-ui_testing")
         || arguments.contains("-FASTLANE_SNAPSHOT")
+        || shouldSimulateNetworkError
+        || shouldUseEmptyRegistration
+    }
+
+    static var shouldSimulateNetworkError: Bool {
+        ProcessInfo.processInfo.arguments.contains("-ui_testing_network_error")
+    }
+
+    static var shouldUseEmptyRegistration: Bool {
+        ProcessInfo.processInfo.arguments.contains("-ui_testing_empty_registration")
     }
 
     static var flights: [FlightData] {
-        [
+        if shouldUseEmptyRegistration {
+            return [
+                .mock(
+                    number: "AA 100",
+                    status: "Departed",
+                    callSign: "AAL100",
+                    airlineName: "American Airlines",
+                    aircraftModel: nil
+                )
+            ]
+        }
+
+        return [
             .mock(
                 number: "AA 100",
                 status: "Departed",

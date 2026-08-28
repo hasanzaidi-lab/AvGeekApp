@@ -5,8 +5,6 @@
 //  Created by Hasan Zaidi on 9/12/25.
 //
 
-#if DEBUG
-import AvAppNetworking
 import CoreLocation
 
 extension FlightData {
@@ -161,4 +159,3 @@ extension AircraftTrack {
         )
     }
 }
-#endif

@@ -77,7 +77,23 @@ Generate UI screenshots with fastlane snapshot
 [bundle exec] fastlane ios export_app
 ```
 
-To export our app
+Export IPA for App Store
+
+### ios upload_app
+
+```sh
+[bundle exec] fastlane ios upload_app
+```
+
+Upload IPA to App Store Connect
+
+### ios release_app
+
+```sh
+[bundle exec] fastlane ios release_app
+```
+
+Export and upload
 
 ----
 

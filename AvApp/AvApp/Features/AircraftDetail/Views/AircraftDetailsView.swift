@@ -8,15 +8,38 @@
 // Views/AircraftDetailView.swift
 
 import SwiftUI
+import AvAppNetworking
 
 struct AircraftDetailView: View {
+    let registration: String
+    @Environment(\.appDependencies) private var dependencies
+
+    var body: some View {
+        AircraftDetailContent(
+            registration: registration,
+            aircraftService: dependencies.aircraftService,
+            trackService: dependencies.trackService
+        )
+    }
+}
+
+private struct AircraftDetailContent: View {
     @StateObject private var coordinator: AircraftDetailCoordinator
     @ObservedObject private var viewModel: AircraftDetailViewModel
+    private let trackService: any TrackFetching
 
-    init(registration: String) {
-        let coordinator = AircraftDetailCoordinator(registration: registration)
+    init(
+        registration: String,
+        aircraftService: any AircraftFetching,
+        trackService: any TrackFetching
+    ) {
+        let coordinator = AircraftDetailCoordinator(
+            registration: registration,
+            aircraftService: aircraftService
+        )
         _coordinator = StateObject(wrappedValue: coordinator)
         _viewModel = ObservedObject(wrappedValue: coordinator.viewModel)
+        self.trackService = trackService
     }
 
     var body: some View {
@@ -60,7 +83,7 @@ struct AircraftDetailView: View {
                     
                     if let icaoHex = aircraft.icaoHex, !icaoHex.isEmpty {
                         Section("Live Track") {
-                            MapKitView(icao24: icaoHex)
+                            MapKitView(icao24: icaoHex, trackService: trackService)
                                 .listRowInsets(EdgeInsets())
                         }
                     }
@@ -74,6 +97,13 @@ struct AircraftDetailView: View {
                     Text(error)
                         .multilineTextAlignment(.center)
                         .foregroundColor(.secondary)
+                        .accessibilityIdentifier("aircraft-error-message")
+                    Button("Retry") {
+                        Task {
+                            await coordinator.load()
+                        }
+                    }
+                    .buttonStyle(.bordered)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
@@ -88,17 +118,18 @@ struct AircraftDetailView: View {
             }
         }
         .navigationTitle("Aircraft Info")
-        .onAppear(perform: coordinator.onAppear)
+        .task { await coordinator.load() }
     }
 }
 
 #Preview {
     NavigationStack {
         AircraftDetailView(registration: "N664NK")
+            .environment(\.appDependencies, .preview)
     }
 }
 
-private extension AircraftDetailView {
+private extension AircraftDetailContent {
     @ViewBuilder
     func detailRow(_ title: String, value: String?) -> some View {
         if let value, !value.isEmpty {

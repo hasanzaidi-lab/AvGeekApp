@@ -1,0 +1,42 @@
+{
+  "departures": [
+    {
+      "number": "AA 100",
+      "status": "Departed",
+      "codeshareStatus": "IsOperator",
+      "isCargo": false,
+      "callSign": "AAL100",
+      "departure": {
+        "scheduledTime": { "utc": "2025-07-31 14:05Z", "local": "2025-07-31 10:05-04:00" },
+        "terminal": "B",
+        "gate": "10",
+        "airport": { "iata": "MCO", "icao": "KMCO", "name": "Orlando", "timeZone": "America/New_York" }
+      },
+      "arrival": {
+        "scheduledTime": { "utc": "2025-07-31 16:45Z", "local": "2025-07-31 12:45-04:00" },
+        "airport": { "iata": "JFK", "icao": "KJFK", "name": "New York JFK", "timeZone": "America/New_York" }
+      },
+      "airline": { "name": "American Airlines", "iata": "AA", "icao": "AAL" },
+      "aircraft": { "model": "Airbus A321", "reg": "N123AA", "modeS": "A1B2C3" }
+    }
+  ],
+  "arrivals": [
+    {
+      "number": "DL 82",
+      "status": "Expected",
+      "codeshareStatus": "IsOperator",
+      "isCargo": false,
+      "callSign": "DAL82",
+      "departure": {
+        "scheduledTime": { "utc": "2025-07-31 18:20Z", "local": "2025-07-31 14:20-04:00" },
+        "airport": { "iata": "ATL", "icao": "KATL", "name": "Atlanta", "timeZone": "America/New_York" }
+      },
+      "arrival": {
+        "scheduledTime": { "utc": "2025-07-31 21:05Z", "local": "2025-07-31 17:05-04:00" },
+        "airport": { "iata": "MCO", "icao": "KMCO", "name": "Orlando", "timeZone": "America/New_York" }
+      },
+      "airline": { "name": "Delta Air Lines", "iata": "DL", "icao": "DAL" },
+      "aircraft": { "model": "Boeing 757-200", "reg": "N826DX", "modeS": "A4C5D6" }
+    }
+  ]
+}

@@ -6,19 +6,19 @@
 //
 
 import Foundation
+import AvAppNetworking
 
 @MainActor
 final class AircraftDetailCoordinator: ObservableObject {
     @Published var registration: String
     let viewModel: AircraftDetailViewModel
 
-    init(registration: String, viewModel: AircraftDetailViewModel? = nil) {
+    init(registration: String, aircraftService: any AircraftFetching) {
         self.registration = registration
-        self.viewModel = viewModel ?? AircraftDetailViewModel()
+        self.viewModel = AircraftDetailViewModel(service: aircraftService)
     }
 
-    func onAppear() {
-        viewModel.loadAircraftDetail(registration: registration)
+    func load() async {
+        await viewModel.loadAircraftDetail(registration: registration)
     }
 }
-

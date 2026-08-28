@@ -10,6 +10,10 @@ import Foundation
 import SwiftUI
 import AvAppNetworking
 
+struct AircraftDetailRoute: Hashable {
+    let registration: String
+}
+
 @MainActor
 final class FlightBoardCoordinator: ObservableObject {
     enum Tab: Hashable, CaseIterable {
@@ -34,65 +38,91 @@ final class FlightBoardCoordinator: ObservableObject {
     @Published var selectedTab: Tab = .departures
     @Published var airportCode: String
     @Published var flightSearchText: String
-    @Published private(set) var departures: [FlightData] = []
-    @Published private(set) var arrivals: [FlightData] = []
-    @Published private(set) var isLoading = false
-    @Published private(set) var errorMessage: String?
+    @Published var departuresPath = NavigationPath()
+    @Published var arrivalsPath = NavigationPath()
 
-    private let viewModel: FlightBoardViewModel
+    let viewModel: FlightBoardViewModel
+
+    var departures: [FlightData] { viewModel.departures }
+    var arrivals: [FlightData] { viewModel.arrivals }
+    var isLoading: Bool { viewModel.isLoading }
+    var errorMessage: String? { viewModel.errorMessage }
+    var hasError: Bool { errorMessage != nil }
+
+    private let airportStore: any AirportCodeStoring
     private var cancellables = Set<AnyCancellable>()
+    private var autoRefreshTask: Task<Void, Never>?
 
     init(
-        service: FlightService = .shared,
-        airportCode: String = "MCO",
+        service: any FlightFetching,
+        airportStore: any AirportCodeStoring = UserDefaultsAirportStore(),
+        airportCode: String? = nil,
         flightSearchText: String = ""
     ) {
         self.viewModel = FlightBoardViewModel(service: service)
-        self.airportCode = airportCode
+        self.airportStore = airportStore
+        self.airportCode = airportCode ?? airportStore.load(default: "MCO")
         self.flightSearchText = flightSearchText
         bindViewModel()
     }
 
-    func onAppear() {
-        Task { await fetchFlights() }
+    func start() async {
+        await fetchFlights()
+        startAutoRefresh()
+    }
+
+    func stop() {
+        autoRefreshTask?.cancel()
+        autoRefreshTask = nil
     }
 
     func fetchFlights(for code: String? = nil) async {
-        let normalized = sanitize(code ?? airportCode)
+        let normalized = Self.sanitize(code ?? airportCode)
         guard !normalized.isEmpty else { return }
         airportCode = normalized
+        airportStore.save(normalized)
         await viewModel.fetchFlights(for: normalized)
     }
 
-    func refresh() {
-        Task { await fetchFlights() }
+    func refresh() async {
+        await fetchFlights()
     }
-
-    var hasError: Bool { errorMessage != nil }
 
     func dismissError() {
         viewModel.clearError()
     }
 
-    private func sanitize(_ code: String) -> String {
+    func showAircraftDetail(for flight: FlightData) {
+        let route = AircraftDetailRoute(registration: FlightFormatting.aircraftRegistration(for: flight))
+        switch selectedTab {
+        case .departures:
+            departuresPath.append(route)
+        case .arrivals:
+            arrivalsPath.append(route)
+        }
+    }
+
+    static func sanitize(_ code: String) -> String {
         code.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
     }
 
+    private func startAutoRefresh() {
+        autoRefreshTask?.cancel()
+        autoRefreshTask = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(90))
+                guard !Task.isCancelled else { return }
+                await self?.fetchFlights()
+            }
+        }
+    }
+
     private func bindViewModel() {
-        viewModel.$departures
+        viewModel.objectWillChange
             .receive(on: RunLoop.main)
-            .assign(to: &$departures)
-
-        viewModel.$arrivals
-            .receive(on: RunLoop.main)
-            .assign(to: &$arrivals)
-
-        viewModel.$isLoading
-            .receive(on: RunLoop.main)
-            .assign(to: &$isLoading)
-
-        viewModel.$errorMessage
-            .receive(on: RunLoop.main)
-            .assign(to: &$errorMessage)
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
     }
 }

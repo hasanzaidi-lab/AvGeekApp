@@ -9,22 +9,25 @@ import Foundation
 import AvAppNetworking
 
 @MainActor
-class AircraftDetailViewModel: ObservableObject {
+final class AircraftDetailViewModel: ObservableObject {
     @Published var aircraft: AircraftDetail?
     @Published var isLoading = false
     @Published var error: String?
 
-    private let service: AircraftService
+    private let service: any AircraftFetching
 
-    init(service: AircraftService = .shared) {
+    init(service: any AircraftFetching) {
         self.service = service
     }
 
-    func loadAircraftDetail(registration: String) {
-        guard !registration.isEmpty else { return }
+    func loadAircraftDetail(registration: String) async {
+        guard !registration.isEmpty else {
+            error = "This flight has no aircraft registration to look up."
+            return
+        }
         isLoading = true
         error = nil
-        
+
         #if DEBUG
         if UITestConfig.isUITesting {
             aircraft = UITestConfig.aircraftDetail
@@ -33,15 +36,19 @@ class AircraftDetailViewModel: ObservableObject {
         }
         #endif
 
-        Task {
-            do {
-                let detail = try await service.fetchAircraftDetail(registration: registration)
-                self.aircraft = detail
-            } catch {
-                self.error = error.localizedDescription
+        do {
+            aircraft = try await service.fetchAircraftDetail(registration: registration)
+        } catch is CancellationError {
+            isLoading = false
+            return
+        } catch {
+            if Task.isCancelled {
+                isLoading = false
+                return
             }
-
-            self.isLoading = false
+            self.error = error.localizedDescription
         }
+
+        isLoading = false
     }
 }

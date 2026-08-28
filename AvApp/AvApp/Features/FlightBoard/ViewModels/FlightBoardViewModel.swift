@@ -15,14 +15,13 @@ final class FlightBoardViewModel: ObservableObject {
     @Published private(set) var isLoading = false
     @Published private(set) var errorMessage: String?
 
-    private let service: FlightService
+    private let service: any FlightFetching
 
-    init(service: FlightService = .shared) {
+    init(service: any FlightFetching) {
         self.service = service
         #if DEBUG
-        if UITestConfig.isUITesting {
-            departures = UITestConfig.flights
-            arrivals = Array(UITestConfig.flights.reversed())
+        if UITestConfig.isUITesting, !UITestConfig.shouldSimulateNetworkError {
+            applyUITestFlights()
         }
         #endif
     }
@@ -33,9 +32,13 @@ final class FlightBoardViewModel: ObservableObject {
         errorMessage = nil
 
         #if DEBUG
+        if UITestConfig.shouldSimulateNetworkError {
+            errorMessage = "Simulated network error"
+            isLoading = false
+            return
+        }
         if UITestConfig.isUITesting {
-            departures = UITestConfig.flights
-            arrivals = Array(UITestConfig.flights.reversed())
+            applyUITestFlights()
             isLoading = false
             return
         }
@@ -45,12 +48,26 @@ final class FlightBoardViewModel: ObservableObject {
             let response = try await service.fetchFlights(for: airportCode)
             departures = response.departures
             arrivals = response.arrivals
+        } catch is CancellationError {
+            isLoading = false
+            return
         } catch {
-            errorMessage = "Failed to load flight data."
+            if Task.isCancelled {
+                isLoading = false
+                return
+            }
+            errorMessage = error.localizedDescription
         }
 
         isLoading = false
     }
+
+    #if DEBUG
+    private func applyUITestFlights() {
+        departures = UITestConfig.flights
+        arrivals = Array(UITestConfig.flights.reversed())
+    }
+    #endif
 
     func clearError() {
         errorMessage = nil

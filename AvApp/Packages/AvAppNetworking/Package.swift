@@ -6,25 +6,27 @@ import PackageDescription
 let package = Package(
     name: "AvAppNetworking",
     platforms: [
-            .iOS(.v15),       // or higher if you want
-            .macOS(.v12),
-            .tvOS(.v15),
-            .watchOS(.v8)
-        ],
+        .iOS(.v15),
+        .macOS(.v12),
+        .tvOS(.v15),
+        .watchOS(.v8)
+    ],
     products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
             name: "AvAppNetworking",
-            targets: ["AvAppNetworking"]),
+            targets: ["AvAppNetworking"]
+        ),
     ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "AvAppNetworking"),
+            name: "AvAppNetworking"
+        ),
         .testTarget(
             name: "AvAppNetworkingTests",
-            dependencies: ["AvAppNetworking"]
+            dependencies: ["AvAppNetworking"],
+            resources: [
+                .process("Fixtures")
+            ]
         ),
     ]
 )

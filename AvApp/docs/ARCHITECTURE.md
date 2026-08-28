@@ -46,7 +46,7 @@ Packages/AvAppNetworking
 
 ## Dependency guidelines
 - UI targets can only depend on the Swift package via `import AvAppNetworking`.
-- Do not leak RapidAPI keys from the package; inject them (future improvement: `Secrets.plist`).
+- Do not leak RapidAPI keys from the package; inject them from the app (`Secrets.plist`, `Secrets.xcconfig`, or `RAPIDAPI_KEY`). `AppSecrets.xcconfig` forwards the build setting to the app's generated plist.
 - When adding new endpoints, place DTOs in `Models/`, request orchestration in `Services/`, and re-use `NetworkClient` helpers instead of calling `URLSession.shared` directly.
 
 ## Data flow walkthrough
@@ -76,7 +76,7 @@ This loop keeps feature code purely declarative: views never hold networking ref
 
 ## Concurrency & threading notes
 - Services use Swift concurrency; prefer marking them `Sendable` and avoid sharing mutable state across actors.
-- `FlightService` currently exposes a `shared` singleton for convenience—inject explicit instances during testing to remove global coupling.
+- `FlightService` no longer uses a singleton; inject `FlightFetching` at the app root (`AppSession`).
 - When updating UI from async work, ensure publishers hop back to the main actor (`@MainActor` on view models) to keep SwiftUI happy.
 
 ## Adding a new feature folder
